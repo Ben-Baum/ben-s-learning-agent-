@@ -1,0 +1,2450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genie AI - Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Space Grotesk', sans-serif;
+            background: #080c10;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: #0d1117;
+            border-bottom: 1px solid #1e2329;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #00d9ff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            font-size: 13px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff3333;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.connected {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .stat-badge {
+            background: #1e2329;
+            padding: 4px 12px;
+            border-radius: 4px;
+            border-left: 2px solid #00d9ff;
+        }
+
+        .route-badge {
+            background: #1e2329;
+            padding: 4px 12px;
+            border-radius: 4px;
+            border-left: 2px solid #ffff00;
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr;
+            overflow: hidden;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            background: #0d1117;
+            border-bottom: 1px solid #1e2329;
+            display: flex;
+            gap: 0;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: #00d9ff;
+        }
+
+        .tab-button.active {
+            color: #00d9ff;
+            border-bottom-color: #00d9ff;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* FLOW TAB */
+        .flow-container {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            grid-template-rows: 1fr;
+            gap: 16px;
+            padding: 16px;
+            height: 100%;
+        }
+
+        /* Right sidebar: event log + chat stacked */
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .chat-panel {
+            flex: 1;
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 10px 16px;
+            border-bottom: 1px solid #1e2329;
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-header .chat-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #3fb950;
+            box-shadow: 0 0 6px #3fb950;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #1e2329; border-radius: 2px; }
+
+        .chat-msg {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .chat-msg.user {
+            background: rgba(57, 208, 216, 0.12);
+            border: 1px solid rgba(57, 208, 216, 0.3);
+            color: #c9d1d9;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-msg.bot {
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            color: #e6edf3;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-msg.bot.thinking {
+            color: #d29922;
+            border-color: rgba(210, 153, 34, 0.3);
+            font-style: italic;
+        }
+
+        .chat-msg .msg-route {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .chat-input-row {
+            padding: 10px 16px;
+            border-top: 1px solid #1e2329;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus { border-color: #39d0d8; }
+        .chat-input:disabled { opacity: 0.5; }
+
+        .chat-send-btn {
+            background: rgba(57, 208, 216, 0.15);
+            border: 1px solid rgba(57, 208, 216, 0.4);
+            color: #39d0d8;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            background: rgba(57, 208, 216, 0.25);
+            border-color: #39d0d8;
+        }
+
+        .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .pipeline-canvas {
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .pipeline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            width: 100%;
+        }
+
+        .agent-card {
+            background: #0d1117;
+            border: 2px solid #1e2329;
+            border-radius: 8px;
+            padding: 16px;
+            min-width: 160px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .agent-card:hover {
+            border-color: #00d9ff;
+            box-shadow: 0 0 16px rgba(0, 217, 255, 0.2);
+        }
+
+        .agent-card.active {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .agent-card.processing {
+            animation: pulse 1.5s ease-in-out infinite;
+            border-color: #ffff00;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .agent-name {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: #00d9ff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .agent-role {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .agent-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .status-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+        }
+
+        .status-badge.idle {
+            background: #666;
+        }
+
+        .status-badge.thinking {
+            background: #ffff00;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        .status-badge.done {
+            background: #00ff88;
+        }
+
+        .status-badge.error {
+            background: #ff3333;
+        }
+
+        .agent-task {
+            font-size: 10px;
+            color: #666;
+            margin-top: 8px;
+            font-style: italic;
+            height: 30px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .agent-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-top: 8px;
+            margin-right: 4px;
+        }
+
+        .agent-badge.llm {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+            border: 1px solid #00d9ff;
+        }
+
+        .agent-badge.code {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .arrow-container {
+            position: relative;
+            width: 40px;
+            height: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arrow-line {
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: #1e2329;
+            transition: all 0.3s ease;
+        }
+
+        .arrow-head {
+            position: absolute;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            background: #1e2329;
+            clip-path: polygon(0 0, 0 100%, 100% 50%);
+            transition: all 0.3s ease;
+        }
+
+        .arrow-container.active .arrow-line,
+        .arrow-container.active .arrow-head {
+            background: currentColor;
+        }
+
+        .arrow-container.light {
+            color: #00ff88;
+        }
+
+        .arrow-container.medium {
+            color: #ffff00;
+        }
+
+        .arrow-container.deep {
+            color: #bb00ff;
+        }
+
+        .event-log {
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .event-log-header {
+            padding: 12px;
+            border-bottom: 1px solid #1e2329;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .event-log-items {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .event-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid #1e2329;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .event-item:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .event-item.expanded {
+            background: rgba(0, 217, 255, 0.08);
+        }
+
+        .event-agent {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            color: #00d9ff;
+            margin-bottom: 4px;
+        }
+
+        .event-type-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .event-type-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .event-type-badge.start {
+            background: rgba(0, 217, 255, 0.2);
+            color: #00d9ff;
+        }
+
+        .event-type-badge.thinking {
+            background: rgba(255, 255, 0, 0.2);
+            color: #ffff00;
+        }
+
+        .event-type-badge.result {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .event-type-badge.done {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .event-type-badge.error {
+            background: rgba(255, 51, 51, 0.2);
+            color: #ff3333;
+        }
+
+        .event-type-badge.message {
+            background: rgba(100, 150, 255, 0.2);
+            color: #6496ff;
+        }
+
+        .event-timestamp {
+            color: #666;
+            margin-left: auto;
+        }
+
+        .event-data {
+            display: none;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #1e2329;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .event-item.expanded .event-data {
+            display: block;
+        }
+
+        /* PROMPTS TAB */
+        .prompts-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .prompt-list {
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prompt-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #1e2329;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .prompt-item:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .prompt-item.active {
+            background: rgba(0, 217, 255, 0.15);
+            border-left: 3px solid #00d9ff;
+            padding-left: 13px;
+            color: #00d9ff;
+        }
+
+        .prompt-editor-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prompt-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .prompt-editor-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #00d9ff;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .prompt-editor-info {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .prompt-textarea {
+            flex: 1;
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: #e0e0e0;
+            resize: none;
+            line-height: 1.5;
+            transition: all 0.2s ease;
+        }
+
+        .prompt-textarea:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.2);
+        }
+
+        .prompt-char-count {
+            font-size: 11px;
+            color: #666;
+            text-align: right;
+        }
+
+        .prompt-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            background: #1e2329;
+            border: 1px solid #00d9ff;
+            color: #00d9ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(0, 217, 255, 0.1);
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ROUTER TAB */
+        .router-container {
+            padding: 20px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+        }
+
+        .router-section {
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .router-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #00d9ff;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .pattern-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pattern-input {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #e0e0e0;
+            transition: all 0.2s ease;
+        }
+
+        .pattern-input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 8px rgba(0, 217, 255, 0.2);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            background: #1e2329;
+            border: 1px solid #ff3333;
+            color: #ff3333;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-small:hover {
+            background: rgba(255, 51, 51, 0.1);
+        }
+
+        .btn-add {
+            padding: 8px 12px;
+            background: #1e2329;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-add:hover {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            background: rgba(0, 217, 255, 0.15);
+            border: 1px solid #00d9ff;
+            color: #00d9ff;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .tag .btn-remove-tag {
+            background: none;
+            border: none;
+            color: #ff3333;
+            cursor: pointer;
+            padding: 0;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        .tag .btn-remove-tag:hover {
+            color: #ff6666;
+        }
+
+        .tag-input {
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #e0e0e0;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .tag-input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 8px rgba(0, 217, 255, 0.2);
+        }
+
+        .test-route-section {
+            grid-column: 1 / -1;
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .test-route-input {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #e0e0e0;
+            margin-bottom: 12px;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .test-route-input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 8px rgba(0, 217, 255, 0.2);
+        }
+
+        .test-route-result {
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #00ff88;
+            display: none;
+        }
+
+        .test-route-result.show {
+            display: block;
+        }
+
+        .router-footer {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* INSPECTOR TAB */
+        .inspector-container {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .turn-card {
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .turn-header {
+            padding: 16px;
+            background: #0d1117;
+            border-bottom: 1px solid #1e2329;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .turn-header:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .turn-header.expanded {
+            background: rgba(0, 217, 255, 0.08);
+        }
+
+        .turn-chevron {
+            width: 6px;
+            height: 10px;
+            border-right: 2px solid #00d9ff;
+            border-bottom: 2px solid #00d9ff;
+            transform: rotate(-45deg);
+            transition: all 0.2s ease;
+        }
+
+        .turn-header.expanded .turn-chevron {
+            transform: rotate(45deg);
+        }
+
+        .turn-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .turn-index {
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            color: #00d9ff;
+            font-size: 12px;
+        }
+
+        .turn-input-preview {
+            color: #aaa;
+            font-size: 12px;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 400px;
+        }
+
+        .turn-route-badge {
+            background: #1e2329;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .turn-route-badge.light {
+            border-left: 2px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .turn-route-badge.medium {
+            border-left: 2px solid #ffff00;
+            color: #ffff00;
+        }
+
+        .turn-route-badge.deep {
+            border-left: 2px solid #bb00ff;
+            color: #bb00ff;
+        }
+
+        .turn-body {
+            display: none;
+            padding: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .turn-card.expanded .turn-body {
+            display: block;
+        }
+
+        .turn-section {
+            margin-bottom: 16px;
+        }
+
+        .turn-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .turn-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00d9ff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .turn-section-content {
+            background: #080c10;
+            border: 1px solid #1e2329;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #aaa;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .json-tree {
+            color: #e0e0e0;
+        }
+
+        .json-key {
+            color: #00d9ff;
+        }
+
+        .json-string {
+            color: #00ff88;
+        }
+
+        .json-number {
+            color: #ffff00;
+        }
+
+        .json-boolean {
+            color: #bb00ff;
+        }
+
+        .json-null {
+            color: #888;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e2329;
+            border: 1px solid #00d9ff;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: #00d9ff;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            border-color: #ff3333;
+            color: #ff3333;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0e13;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e2329;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a3033;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            gap: 12px;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .router-container {
+                grid-template-columns: 1fr;
+            }
+
+            .test-route-section {
+                grid-column: 1;
+            }
+
+            .router-footer {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .flow-container {
+                grid-template-columns: 1fr;
+            }
+
+            .prompts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .event-log {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Disconnection Banner -->
+    <div id="disconnectBanner" style="
+        display:none; background:#ff333311; border-bottom:1px solid #ff333355;
+        padding:6px 20px; text-align:center; font-size:12px;
+        font-family:'IBM Plex Mono',monospace; color:#ff6666; flex-shrink:0;
+    ">
+        ⚠️ Not connected — run <strong style="color:#ff9999;">python run_chat.py</strong>
+        then refresh this page. The banner disappears when connected.
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            ◆ GENIE AI / CONTROL CENTER
+        </div>
+        <div class="header-right">
+            <div class="status-indicator">
+                <div class="status-dot" id="connectionStatus"></div>
+                <span id="connectionLabel" style="font-size:12px;">Disconnected</span>
+            </div>
+            <div class="stat-badge">
+                Agents: <span id="agentCount">0</span>
+            </div>
+            <div class="stat-badge" id="wsEventBadge" style="border-left-color:#3fb950;">
+                Events: <span id="wsEventCount">0</span>
+            </div>
+            <div class="route-badge" id="currentRouteBadge" style="display: none;">
+                Route: <span id="routeName">—</span>
+            </div>
+            <button id="pingBtn" onclick="pingSSE()" style="
+                background:#1e2329;border:1px solid #3fb95066;color:#3fb950;
+                padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;
+                font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:0.5px;
+                transition:all 0.2s;
+            " onmouseover="this.style.borderColor='#3fb950'" onmouseout="this.style.borderColor='#3fb95066'">
+                ⚡ PING
+            </button>
+            <button id="restartBtn" onclick="restartDashboard()" style="
+                background:#1e2329;border:1px solid #f7853066;color:#f78530;
+                padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;
+                font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:0.5px;
+                transition:all 0.2s;
+            " onmouseover="this.style.borderColor='#f78530'" onmouseout="this.style.borderColor='#f7853066'">
+                🔄 RESTART
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-button active" data-tab="flow">Flow</button>
+            <button class="tab-button" data-tab="prompts">Prompts</button>
+            <button class="tab-button" data-tab="router">Router</button>
+            <button class="tab-button" data-tab="inspector">Inspector</button>
+        </div>
+
+        <!-- FLOW TAB -->
+        <div class="tab-content active" id="flow-tab">
+            <div class="flow-container">
+
+                <!-- LEFT: full-height pipeline visualization -->
+                <div class="pipeline-canvas">
+                    <div class="pipeline" id="pipeline"></div>
+                </div>
+
+                <!-- RIGHT: event log + chat stacked -->
+                <div class="right-sidebar">
+
+                    <!-- Event log (top, smaller) -->
+                    <div class="event-log" style="max-height:260px;min-height:140px;">
+                        <div class="event-log-header">Event Log</div>
+                        <div class="event-log-items" id="eventLog"></div>
+                    </div>
+
+                    <!-- Chat (bottom, takes remaining space) -->
+                    <div class="chat-panel">
+                        <div class="chat-header">
+                            <div class="chat-dot"></div>
+                            <span>צ'אט חי — ראה סוכנים עובדים</span>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-msg bot">שלח הודעה וראה את הסוכנים עובדים בשמאל 👈</div>
+                        </div>
+                        <div class="chat-input-row">
+                            <input type="text" class="chat-input" id="chatInput"
+                                placeholder="כתוב הודעה..." dir="auto"/>
+                            <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">▶</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PROMPTS TAB -->
+        <div class="tab-content" id="prompts-tab">
+            <div class="prompts-container">
+                <div class="prompt-list" id="promptList"></div>
+                <div class="prompt-editor-area" id="promptEditor">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-text">Select a prompt to edit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROUTER TAB -->
+        <div class="tab-content" id="router-tab">
+            <div class="router-container" id="routerContainer"></div>
+        </div>
+
+        <!-- INSPECTOR TAB -->
+        <div class="tab-content" id="inspector-tab">
+            <div class="inspector-container" id="inspectorContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔍</div>
+                    <div class="empty-state-text">No turns yet. Interact with agents to populate.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // STATE MANAGEMENT
+        // ============================================================================
+
+        const state = {
+            ws: null,
+            connected: false,
+            agents: new Map(),
+            events: [],
+            prompts: new Map(),
+            routerConfig: {
+                lightPatterns: [],
+                deepSignals: [],
+                emotionalKeywordsHebrew: [],
+                emotionalKeywordsEnglish: []
+            },
+            turns: [],
+            currentRoute: null,
+            agentTypes: {},        // Track agent type (llm or code)
+            agentLastData: new Map() // Last payload per agent
+        };
+
+        // ============================================================================
+        // CONSTANTS
+        // ============================================================================
+
+        const AGENTS = [
+            { name: 'router', role: 'Route Selector', type: 'code' },
+            { name: 'nlp_analyzer', role: 'NLP Analysis', type: 'llm' },
+            { name: 'belief_graph', role: 'Belief Graph Mapper', type: 'llm' },
+            { name: 'knowledge_retriever', role: 'RAG Retrieval', type: 'code' },
+            { name: 'tactician', role: 'Strategy Mapper', type: 'llm' },
+            { name: 'front_agent', role: 'Response Generator', type: 'llm' }
+        ];
+
+        const PROMPTS = [
+            { id: 'SYSTEM_PROMPT_NLP_ANALYZER', name: 'NLP Analyzer', agent: 'nlp_analyzer' },
+            { id: 'SYSTEM_PROMPT_BELIEF_GRAPH_MAPPER', name: 'Belief Graph', agent: 'belief_graph' },
+            { id: 'SYSTEM_PROMPT_TACTICAL_STRATEGIST', name: 'Tactician', agent: 'tactician' },
+            { id: 'FRONT_AGENT_SYSTEM_PROMPT', name: 'Front Agent', agent: 'front_agent' }
+        ];
+
+        const ROUTE_PATHS = {
+            light: ['router', 'front_agent'],
+            medium: ['router', 'nlp_analyzer', 'belief_graph', 'front_agent'],
+            deep: ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'front_agent']
+        };
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        function init() {
+            initializeAgents();
+            setupEventListeners();
+            loadPrompts();
+            loadRouterConfig();
+            showBanner();  // shown until WS connects
+            connectSSE();
+        }
+
+        function initializeAgents() {
+            AGENTS.forEach(agent => {
+                state.agents.set(agent.name, {
+                    name: agent.name,
+                    role: agent.role,
+                    status: 'idle',
+                    currentTask: '',
+                    type: agent.type
+                });
+                state.agentTypes[agent.name] = agent.type;
+            });
+            updateAgentCount();
+            renderPipeline();
+        }
+
+        // ============================================================================
+        // TAB MANAGEMENT
+        // ============================================================================
+
+        function setupEventListeners() {
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    switchTab(e.target.dataset.tab);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // ============================================================================
+        // SSE CONNECTION (replaces WebSocket — uses same HTTP server, no extra deps)
+        // ============================================================================
+
+        function connectSSE() {
+            console.log('[Dashboard] Connecting SSE to http://localhost:8766/api/events...');
+            try {
+                state.sse = new EventSource('http://localhost:8766/api/events');
+
+                state.sse.onopen = () => {
+                    console.log('[Dashboard] SSE connected!');
+                    state.connected = true;
+                    updateConnectionStatus();
+                    showToast('🟢 Connected! Send a message to see agents work.', '#00d9ff');
+                    hideBanner();
+                };
+
+                state.sse.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'connected') {
+                            // System handshake, ignore
+                            return;
+                        }
+                        handleSSEMessage(data);
+                    } catch(e) {
+                        console.warn('SSE parse error:', e, event.data);
+                    }
+                };
+
+                state.sse.onerror = (error) => {
+                    console.log('[Dashboard] SSE connection error/closed');
+                    state.connected = false;
+                    updateConnectionStatus();
+                    showBanner();
+                    // EventSource auto-reconnects, but if it's fully closed, restart
+                    if (state.sse.readyState === EventSource.CLOSED) {
+                        setTimeout(connectSSE, 2000);
+                    }
+                };
+            } catch (err) {
+                console.error('Failed to create EventSource:', err);
+                setTimeout(connectSSE, 3000);
+            }
+        }
+
+        let wsEventTotal = 0;
+
+        function updateConnectionStatus() {
+            const dot = document.getElementById('connectionStatus');
+            const label = document.getElementById('connectionLabel');
+            const badge = document.getElementById('wsEventBadge');
+
+            if (state.connected) {
+                dot.classList.add('connected');
+                label.textContent = 'Connected';
+                if (badge) badge.style.borderLeftColor = '#3fb950';
+            } else {
+                dot.classList.remove('connected');
+                label.textContent = 'Disconnected — run: python run_chat.py';
+                if (badge) badge.style.borderLeftColor = '#ff3333';
+            }
+        }
+
+        function showToast(msg, color) {
+            let t = document.getElementById('wsToast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'wsToast';
+                t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+                    'padding:8px 18px;border-radius:6px;font-size:12px;font-family:IBM Plex Mono,monospace;' +
+                    'font-weight:600;z-index:9999;transition:opacity 0.4s;pointer-events:none;';
+                document.body.appendChild(t);
+            }
+            t.style.background = (color || '#3fb950') + '22';
+            t.style.border = '1px solid ' + (color || '#3fb950') + '88';
+            t.style.color = color || '#3fb950';
+            t.textContent = msg;
+            t.style.opacity = '1';
+            clearTimeout(t._hide);
+            t._hide = setTimeout(() => { t.style.opacity = '0'; }, 2500);
+        }
+
+        async function pingSSE() {
+            const btn = document.getElementById('pingBtn');
+            btn.textContent = '⏳ pinging...';
+            btn.disabled = true;
+            try {
+                const r = await fetch('http://localhost:8766/api/ping');
+                const j = await r.json();
+                btn.textContent = '✅ sent!';
+                showToast('Ping sent — watch the flow light up!', '#3fb950');
+            } catch(e) {
+                btn.textContent = '❌ failed';
+                showToast('Could not reach http://localhost:8766 — is run_chat.py running?', '#ff3333');
+            }
+            setTimeout(() => { btn.textContent = '⚡ PING'; btn.disabled = false; }, 2500);
+        }
+
+        function restartDashboard() {
+            const btn = document.getElementById('restartBtn');
+            btn.textContent = '⏳ restarting...';
+            btn.disabled = true;
+
+            // 1. סגור חיבור SSE קיים
+            if (state.sse) {
+                state.sse.close();
+                state.sse = null;
+            }
+
+            // 2. אפס את כל ה-state
+            state.agents.clear();
+            state.agentLastData.clear();
+            state.connected = false;
+            wsEventTotal = 0;
+
+            // 3. אפס UI
+            const counter = document.getElementById('wsEventCount');
+            if (counter) counter.textContent = '0';
+            const agentCount = document.getElementById('agentCount');
+            if (agentCount) agentCount.textContent = '0';
+            const routeBadge = document.getElementById('currentRouteBadge');
+            if (routeBadge) routeBadge.style.display = 'none';
+            updateConnectionStatus();
+            renderPipeline();
+
+            showToast('🔄 מתחבר מחדש...', '#f78530');
+
+            // 4. התחבר מחדש אחרי רגע קצר
+            setTimeout(() => {
+                connectSSE();
+                btn.textContent = '🔄 RESTART';
+                btn.disabled = false;
+            }, 800);
+        }
+
+        function showBanner() {
+            const b = document.getElementById('disconnectBanner');
+            if (b) b.style.display = 'block';
+        }
+        function hideBanner() {
+            const b = document.getElementById('disconnectBanner');
+            if (b) b.style.display = 'none';
+        }
+
+        // ============================================================================
+        // WEBSOCKET MESSAGE HANDLING
+        // ============================================================================
+
+        function handleSSEMessage(event) {
+            const { agent, type, data, status, ts } = event;
+
+            // Increment live WS counter
+            wsEventTotal++;
+            const counter = document.getElementById('wsEventCount');
+            if (counter) counter.textContent = wsEventTotal;
+            if (wsEventTotal === 1) showToast('🟢 First WS event received!', '#3fb950');
+
+            // Add to event log
+            state.events.unshift({
+                agent, type, data, status,
+                ts: ts || new Date().toISOString(),
+                id: Math.random()
+            });
+            if (state.events.length > 200) state.events.pop();
+
+            updateEventCount();
+            renderEventLog();
+
+            // ── Update live agent status + store last data payload ──
+            if (state.agents.has(agent)) {
+                const agentState = state.agents.get(agent);
+                agentState.status = status || 'idle';
+                if (type === 'thinking' || type === 'start') {
+                    agentState.currentTask = data?.task || data?.content || '';
+                } else if (type === 'done' || type === 'result' || type === 'route_decision' || type === 'turn_result') {
+                    agentState.currentTask = '';
+                }
+                // Store payload for display in the flow card
+                if (data && Object.keys(data).length > 0) {
+                    const prev = state.agentLastData.get(agent) || {};
+                    state.agentLastData.set(agent, { ...prev, ...data, _type: type });
+                }
+                renderPipeline();
+            }
+
+            // ── Inspector: accumulate turn data ──
+            if (type === 'turn_start') {
+                // New turn begins — clear per-agent data display
+                state.agentLastData.clear();
+                // Store router input
+                state.agentLastData.set('router', { input: data?.input || '', _type: 'turn_start' });
+                state.turns.unshift({
+                    id: data?.id || Date.now(),
+                    input: data?.input || '',
+                    route: null, nlp: null,
+                    beliefGraph: null, rag: null,
+                    strategy: null, output: ''
+                });
+            } else if (type === 'route_decision') {
+                // Route decided — highlight path
+                const route = data?.route || null;
+                state.currentRoute = route;
+                // Store route in router card data
+                const rd = state.agentLastData.get('router') || {};
+                state.agentLastData.set('router', { ...rd, route, _type: 'route_decision' });
+                updateRouteDisplay();
+                renderPipeline();   // re-render NOW that currentRoute is set
+                if (state.turns.length > 0) state.turns[0].route = route;
+            } else if (agent === 'nlp_analyzer' && type === 'result') {
+                if (state.turns.length > 0) state.turns[0].nlp = data || {};
+            } else if (agent === 'belief_graph' && type === 'done') {
+                if (state.turns.length > 0) state.turns[0].beliefGraph = data || {};
+            } else if (agent === 'knowledge_retriever' && type === 'done') {
+                if (state.turns.length > 0) state.turns[0].rag = data || {};
+            } else if (agent === 'tactician' && type === 'result') {
+                if (state.turns.length > 0) state.turns[0].strategy = data || {};
+            } else if (type === 'turn_result') {
+                if (state.turns.length > 0) {
+                    state.turns[0].output = data?.text || '';
+                }
+                // Fade route highlight after 3s
+                setTimeout(() => {
+                    state.currentRoute = null;
+                    renderPipeline();
+                }, 3000);
+            }
+
+            renderInspector();
+        }
+
+        // ============================================================================
+        // FLOW TAB - PIPELINE RENDERING (vertical layout)
+        // ============================================================================
+
+        const ROUTE_COLORS = { light: '#3fb950', medium: '#d29922', deep: '#a371f7' };
+
+        // Format agent payload into readable key-value rows
+        function formatAgentData(agentName, payload) {
+            if (!payload) return '';
+            const skip = new Set(['_type', 'role', 'task', 'content', 'id']);
+            const color = '#4a5568';
+            const valColor = '#a0aec0';
+
+            // Per-agent specific formatting (field names match pipeline.py agent_event payloads)
+            const formatters = {
+                router: d => {
+                    const rows = [];
+                    if (d.input) rows.push(['📥 קלט', truncate(d.input, 42)]);
+                    if (d.route) rows.push(['🗺 מסלול', d.route.toUpperCase()]);
+                    return rows;
+                },
+                nlp_analyzer: d => {
+                    const rows = [];
+                    // emotions: [{label, intensity, polarity}]
+                    if (d.emotions?.length) {
+                        const emotionList = d.emotions.slice(0,3).map(e => e.label || e).join(', ');
+                        rows.push(['💬 רגשות', emotionList]);
+                    }
+                    // cognitive_distortions: [{type, confidence, explanation}]
+                    if (d.cognitive_distortions?.length) {
+                        const distList = d.cognitive_distortions.slice(0,2).map(x=>x.type||x).join(', ');
+                        rows.push(['🔄 עיוותים', distList]);
+                    }
+                    // beliefs: [{id, level, valence, statement, strength}]
+                    if (d.beliefs?.length) {
+                        rows.push(['💭 אמונות', d.beliefs.length + ' נמצאו']);
+                        const stmt = d.beliefs[0]?.statement || '';
+                        if (stmt) rows.push(['  ↳', truncate(stmt, 45)]);
+                    }
+                    return rows;
+                },
+                belief_graph: d => {
+                    const rows = [];
+                    if (d.new_nodes !== undefined)  rows.push(['✨ צמתים חדשים', d.new_nodes]);
+                    if (d.new_edges !== undefined)  rows.push(['🔗 קשרים חדשים', d.new_edges]);
+                    if (d.total_nodes !== undefined) rows.push(['📈 סה"כ צמתים', d.total_nodes]);
+                    return rows;
+                },
+                knowledge_retriever: d => {
+                    const rows = [];
+                    if (d.found !== undefined) rows.push(['📚 תוצאות', d.found]);
+                    if (d.keywords?.length) rows.push(['🔍 מילות מפתח', d.keywords.slice(0,4).join(', ')]);
+                    if (d.context_preview) rows.push(['📄 תוכן', truncate(d.context_preview, 45)]);
+                    return rows;
+                },
+                tactician: d => {
+                    const rows = [];
+                    // vectors: [{id, priority, focus, description, angle}]
+                    if (d.vectors?.length) {
+                        rows.push(['🎯 וקטורים', d.vectors.length + ' נושאים']);
+                        const first = d.vectors[0];
+                        if (first?.focus)       rows.push(['  פוקוס', first.focus]);
+                        if (first?.description) rows.push(['  ↳', truncate(first.description, 45)]);
+                    }
+                    if (d.resistance !== undefined) rows.push(['🛡 התנגדות', d.resistance ? 'כן' : 'לא']);
+                    return rows;
+                },
+                front_agent: d => {
+                    const rows = [];
+                    const text = d.text || d.output || '';
+                    if (text) rows.push(['💬 תגובה', truncate(text, 65)]);
+                    if (d.route) rows.push(['🗺 מסלול', d.route.toUpperCase()]);
+                    return rows;
+                },
+            };
+
+            const fn = formatters[agentName];
+            const rows = fn ? fn(payload) : Object.entries(payload)
+                .filter(([k]) => !skip.has(k))
+                .slice(0, 4)
+                .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v).slice(0,40) : String(v).slice(0,40)]);
+
+            if (!rows.length) return '';
+            return `<div style="
+                margin-top:8px;border-top:1px solid #1e2329;padding-top:7px;
+                text-align:left;font-family:'IBM Plex Mono',monospace;
+            ">` + rows.map(([k, v]) => `
+                <div style="display:flex;gap:4px;margin-bottom:2px;line-height:1.4;">
+                  <span style="font-size:8.5px;color:#58697a;white-space:nowrap;flex-shrink:0;">${escHtml(String(k))}</span>
+                  <span style="font-size:8.5px;color:#8b949e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(String(v))}</span>
+                </div>`).join('') + '</div>';
+        }
+
+        function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : (s || ''); }
+        function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        function agentCard(agentName, extraLabel) {
+            const agentDef = AGENTS.find(a => a.name === agentName);
+            const agentState = state.agents.get(agentName);
+            if (!agentDef || !agentState) return '';
+
+            const isActive = agentState.status === 'thinking' || agentState.status === 'active';
+            const route = state.currentRoute;
+            const onPath = route && ROUTE_PATHS[route] && ROUTE_PATHS[route].includes(agentName);
+            const hasData = state.agentLastData.has(agentName);
+
+            const borderColor = isActive
+                ? (route ? ROUTE_COLORS[route] : '#39d0d8')
+                : onPath ? (ROUTE_COLORS[route] + '88')
+                : hasData ? '#2d3f52'
+                : '#1e2329';
+
+            const glowStyle = isActive
+                ? `box-shadow: 0 0 16px ${ROUTE_COLORS[route] || '#39d0d8'}55;` : '';
+
+            const pulseStyle = isActive
+                ? `animation: nodePulse 1s ease-in-out infinite;` : '';
+
+            const dotColor = isActive ? (ROUTE_COLORS[route] || '#39d0d8')
+                : agentState.status === 'error' ? '#f85149'
+                : hasData ? '#3fb950' : '#2d3f52';
+
+            const taskText = agentState.currentTask
+                ? `<div style="font-size:10px;color:#888;margin-top:4px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${agentState.currentTask}</div>` : '';
+
+            const apiLabel = extraLabel
+                ? `<div style="margin-top:5px;"><span style="font-size:9px;background:rgba(57,208,216,0.15);color:#39d0d8;padding:2px 7px;border-radius:3px;font-weight:600;">${extraLabel}</span></div>` : '';
+
+            const dataSection = formatAgentData(agentName, state.agentLastData.get(agentName));
+
+            return `
+              <div style="
+                background:#0d1117;
+                border:1.5px solid ${borderColor};
+                border-radius:8px;
+                padding:10px 12px;
+                min-width:155px;
+                max-width:185px;
+                text-align:center;
+                transition:all 0.3s;
+                ${glowStyle}
+                ${pulseStyle}
+              ">
+                <div style="width:8px;height:8px;border-radius:50%;background:${dotColor};margin:0 auto 5px;${(isActive||hasData) ? 'box-shadow:0 0 6px '+dotColor+';' : ''}"></div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#e6edf3;letter-spacing:0.05em;">${agentDef.name.replace('_', '_\u200B').toUpperCase()}</div>
+                <div style="font-size:9px;color:#58697a;margin-top:2px;">${agentDef.role}</div>
+                ${taskText}
+                <div style="margin-top:5px;">
+                  <span style="font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;
+                    ${agentDef.type === 'llm'
+                      ? 'background:rgba(57,208,216,0.12);color:#39d0d8;'
+                      : 'background:rgba(63,185,80,0.12);color:#3fb950;'}">${agentDef.type.toUpperCase()}</span>
+                </div>
+                ${apiLabel}
+                ${dataSection}
+              </div>`;
+        }
+
+        function arrow(color) {
+            const c = color || '#2d3f52';
+            return `<div style="text-align:center;padding:4px 0;color:${c};font-size:18px;line-height:1;">↓</div>`;
+        }
+
+        function col(routeName, label, agentsInOrder, apiLabels) {
+            const color = ROUTE_COLORS[routeName];
+            const isActive = state.currentRoute === routeName;
+            const borderStyle = isActive ? `border:2px solid ${color};box-shadow:0 0 20px ${color}33;` : `border:1.5px solid ${color}44;`;
+
+            let inner = agentsInOrder.map((name, i) => {
+                const parts = [agentCard(name, apiLabels[i] || null)];
+                if (i < agentsInOrder.length - 1) parts.push(arrow(isActive ? color : null));
+                return parts.join('');
+            }).join('');
+
+            return `
+              <div style="
+                background:${color}08;
+                border-radius:10px;
+                padding:12px 10px;
+                ${borderStyle}
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                gap:0;
+                transition:all 0.3s;
+              ">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;color:${color};letter-spacing:0.08em;margin-bottom:10px;text-align:center;">
+                  ${label}
+                </div>
+                ${inner}
+              </div>`;
+        }
+
+        function renderPipeline() {
+            const pipeline = document.getElementById('pipeline');
+
+            // Top: user message node
+            const routeLabel = state.currentRoute
+                ? `<span style="font-size:10px;font-weight:700;color:${ROUTE_COLORS[state.currentRoute]};background:${ROUTE_COLORS[state.currentRoute]}18;padding:2px 8px;border-radius:4px;margin-left:8px;">${state.currentRoute.toUpperCase()}</span>` : '';
+
+            const routerState = state.agents.get('router');
+            const routerActive = routerState && (routerState.status === 'active' || routerState.status === 'thinking');
+
+            pipeline.innerHTML = `
+              <style>
+                @keyframes nodePulse {
+                  0%,100% { opacity:1; }
+                  50% { opacity:0.65; }
+                }
+              </style>
+
+              <!-- User message -->
+              <div style="text-align:center;margin-bottom:4px;">
+                <div style="display:inline-flex;align-items:center;gap:8px;background:#0d1117;border:1.5px solid #2d3f52;border-radius:8px;padding:8px 20px;">
+                  <span style="font-size:14px;">💬</span>
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#c9d1d9;">הודעת משתמש</span>
+                  <span style="font-size:10px;color:#58697a;">כל הודעה עוברת דרך הראוטר</span>
+                </div>
+              </div>
+
+              ${arrow('#2d3f52')}
+
+              <!-- Smart Router -->
+              <div style="text-align:center;margin-bottom:4px;">
+                <div style="display:inline-block;background:${routerActive ? '#d2992222' : '#d2992210'};border:1.5px solid ${routerActive ? '#d29922' : '#d2992255'};border-radius:10px;padding:12px 24px;${routerActive ? 'box-shadow:0 0 16px #d2992233;' : ''}transition:all 0.3s;">
+                  <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#d29922;">⚡ Smart Router</div>
+                  <div style="font-size:10px;color:#88732a;margin-top:3px;">מסווג: light / medium / deep</div>
+                  <div style="margin-top:6px;"><span style="font-size:9px;background:rgba(63,185,80,0.12);color:#3fb950;padding:2px 7px;border-radius:3px;font-weight:600;">קוד Python — 0 טוקנים</span></div>
+                  ${routeLabel}
+                </div>
+              </div>
+
+              <!-- Route separator -->
+              <div style="text-align:center;padding:6px 0;font-size:11px;color:#58697a;letter-spacing:0.08em;">
+                ↓ &nbsp; מסלול לפי סיווג &nbsp; ↓
+              </div>
+
+              <!-- 3 columns -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;">
+                ${col('deep',   '🟣 Deep',   ['nlp_analyzer','belief_graph','knowledge_retriever','tactician','front_agent'], ['API #1','קוד','קוד DB','API #2','API #3'])}
+                ${col('medium', '🟡 Medium', ['nlp_analyzer','belief_graph','front_agent'], ['API #1','קוד','API #2'])}
+                ${col('light',  '🟢 Light',  ['front_agent'], ['API #1'])}
+              </div>
+
+              ${arrow('#2d3f52')}
+
+              <!-- Response -->
+              <div style="text-align:center;margin-top:4px;">
+                <div style="display:inline-flex;align-items:center;gap:8px;background:#0d1117;border:1.5px solid #2d3f52;border-radius:8px;padding:8px 20px;">
+                  <span style="font-size:14px;">💬</span>
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#c9d1d9;">תגובה למשתמש</span>
+                </div>
+              </div>
+            `;
+        }
+
+        // ============================================================================
+        // FLOW TAB - EVENT LOG
+        // ============================================================================
+
+        function renderEventLog() {
+            const log = document.getElementById('eventLog');
+            log.innerHTML = '';
+
+            state.events.slice(0, 50).forEach(event => {
+                const item = document.createElement('div');
+                item.className = 'event-item';
+
+                const timestamp = new Date(event.ts).toLocaleTimeString();
+
+                item.innerHTML = `
+                    <div class="event-agent">${event.agent}</div>
+                    <div class="event-type-row">
+                        <div class="event-type-badge ${event.type}">${event.type}</div>
+                        <div class="event-timestamp">${timestamp}</div>
+                    </div>
+                    <div class="event-data">${JSON.stringify(event.data, null, 2)}</div>
+                `;
+
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    item.classList.toggle('expanded');
+                });
+
+                log.appendChild(item);
+            });
+        }
+
+        // ============================================================================
+        // HEADER UPDATES
+        // ============================================================================
+
+        function updateAgentCount() {
+            document.getElementById('agentCount').textContent = state.agents.size;
+        }
+
+        function updateEventCount() {
+            // wsEventTotal is already updated in handleSSEMessage — nothing to do here
+        }
+
+        function updateRouteDisplay() {
+            const badge = document.getElementById('currentRouteBadge');
+            const name = document.getElementById('routeName');
+
+            if (state.currentRoute) {
+                badge.style.display = 'flex';
+                name.textContent = state.currentRoute.toUpperCase();
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // ============================================================================
+        // PROMPTS TAB
+        // ============================================================================
+
+        function loadPrompts() {
+            fetch('http://localhost:8766/api/prompts')
+                .then(r => r.json())
+                .then(data => {
+                    Object.entries(data).forEach(([key, value]) => {
+                        state.prompts.set(key, value);
+                    });
+                    renderPromptList();
+                })
+                .catch(err => {
+                    console.error('Failed to load prompts:', err);
+                    renderPromptListWithDefaults();
+                });
+        }
+
+        function renderPromptListWithDefaults() {
+            PROMPTS.forEach(prompt => {
+                if (!state.prompts.has(prompt.id)) {
+                    state.prompts.set(prompt.id, '');
+                }
+            });
+            renderPromptList();
+        }
+
+        function renderPromptList() {
+            const list = document.getElementById('promptList');
+            list.innerHTML = '';
+
+            PROMPTS.forEach(prompt => {
+                const item = document.createElement('div');
+                item.className = 'prompt-item';
+                item.textContent = prompt.name;
+                item.addEventListener('click', () => selectPrompt(prompt.id, prompt.name));
+                list.appendChild(item);
+            });
+
+            // Select first by default
+            if (PROMPTS.length > 0) {
+                selectPrompt(PROMPTS[0].id, PROMPTS[0].name);
+            }
+        }
+
+        function selectPrompt(promptId, promptName) {
+            // Update UI
+            document.querySelectorAll('.prompt-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Render editor
+            const editor = document.getElementById('promptEditor');
+            const text = state.prompts.get(promptId) || '';
+
+            editor.innerHTML = `
+                <div class="prompt-editor-header">
+                    <div>
+                        <div class="prompt-editor-title">${promptName}</div>
+                        <div class="prompt-editor-info">${promptId}</div>
+                    </div>
+                </div>
+                <textarea class="prompt-textarea" id="promptTextarea">${text}</textarea>
+                <div class="prompt-char-count"><span id="charCount">${text.length}</span> / ∞ characters</div>
+                <div class="prompt-actions">
+                    <button class="btn" id="savePromptBtn">Save</button>
+                </div>
+            `;
+
+            const textarea = document.getElementById('promptTextarea');
+            textarea.addEventListener('input', (e) => {
+                document.getElementById('charCount').textContent = e.target.value.length;
+            });
+
+            document.getElementById('savePromptBtn').addEventListener('click', () => {
+                savePrompt(promptId, textarea.value);
+            });
+        }
+
+        function savePrompt(promptId, text) {
+            fetch('http://localhost:8766/api/prompts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt_name: promptId, text })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    state.prompts.set(promptId, text);
+                    showToast('Prompt saved successfully', false);
+                })
+                .catch(err => {
+                    console.error('Failed to save prompt:', err);
+                    showToast('Failed to save prompt: ' + err.message, true);
+                });
+        }
+
+        // ============================================================================
+        // ROUTER TAB
+        // ============================================================================
+
+        function loadRouterConfig() {
+            fetch('http://localhost:8766/api/router-config')
+                .then(r => r.json())
+                .then(data => {
+                    state.routerConfig = data;
+                    renderRouterTab();
+                })
+                .catch(err => {
+                    console.error('Failed to load router config:', err);
+                    renderRouterTab();
+                });
+        }
+
+        function renderRouterTab() {
+            const container = document.getElementById('routerContainer');
+            container.innerHTML = `
+                <!-- Light Patterns -->
+                <div class="router-section">
+                    <div class="router-section-title">Light Patterns (Regex)</div>
+                    <div id="lightPatternsContainer"></div>
+                    <button class="btn-add" onclick="addPattern('light')">+ Add Pattern</button>
+                </div>
+
+                <!-- Deep Signals -->
+                <div class="router-section">
+                    <div class="router-section-title">Deep Signals (Regex)</div>
+                    <div id="deepSignalsContainer"></div>
+                    <button class="btn-add" onclick="addPattern('deep')">+ Add Pattern</button>
+                </div>
+
+                <!-- Emotional Keywords Hebrew -->
+                <div class="router-section">
+                    <div class="router-section-title">Emotional Keywords (Hebrew)</div>
+                    <div id="hebrewKeywordsContainer"></div>
+                    <input type="text" id="hebrewKeywordInput" class="tag-input" placeholder="Add keyword and press Enter" />
+                </div>
+
+                <!-- Emotional Keywords English -->
+                <div class="router-section">
+                    <div class="router-section-title">Emotional Keywords (English)</div>
+                    <div id="englishKeywordsContainer"></div>
+                    <input type="text" id="englishKeywordInput" class="tag-input" placeholder="Add keyword and press Enter" />
+                </div>
+
+                <!-- Test Route -->
+                <div class="test-route-section">
+                    <div class="router-section-title">Test Route</div>
+                    <textarea class="test-route-input" id="testRouteInput" placeholder="Enter a message to test which route it would take..."></textarea>
+                    <button class="btn" onclick="testRoute()">Test Route</button>
+                    <div class="test-route-result" id="testRouteResult"></div>
+                </div>
+
+                <!-- Footer -->
+                <div class="router-footer">
+                    <button class="btn" onclick="saveRouterConfig()">Save All</button>
+                </div>
+            `;
+
+            // Populate patterns
+            renderPatternList('light', state.routerConfig.lightPatterns || []);
+            renderPatternList('deep', state.routerConfig.deepSignals || []);
+
+            // Populate keywords
+            renderKeywordTags('hebrew', state.routerConfig.emotionalKeywordsHebrew || []);
+            renderKeywordTags('english', state.routerConfig.emotionalKeywordsEnglish || []);
+
+            // Setup keyword inputs
+            document.getElementById('hebrewKeywordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addKeyword('hebrew', e.target.value);
+                    e.target.value = '';
+                }
+            });
+
+            document.getElementById('englishKeywordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addKeyword('english', e.target.value);
+                    e.target.value = '';
+                }
+            });
+        }
+
+        function renderPatternList(type, patterns) {
+            const container = document.getElementById(
+                type === 'light' ? 'lightPatternsContainer' : 'deepSignalsContainer'
+            );
+            container.innerHTML = '';
+
+            patterns.forEach((pattern, idx) => {
+                const group = document.createElement('div');
+                group.className = 'pattern-input-group';
+                group.innerHTML = `
+                    <input type="text" class="pattern-input" value="${pattern}" onchange="updatePattern('${type}', ${idx}, this.value)" />
+                    <button class="btn-small" onclick="removePattern('${type}', ${idx})">Remove</button>
+                `;
+                container.appendChild(group);
+            });
+        }
+
+        function addPattern(type) {
+            if (type === 'light') {
+                state.routerConfig.lightPatterns.push('');
+            } else {
+                state.routerConfig.deepSignals.push('');
+            }
+            renderRouterTab();
+        }
+
+        function removePattern(type, idx) {
+            if (type === 'light') {
+                state.routerConfig.lightPatterns.splice(idx, 1);
+            } else {
+                state.routerConfig.deepSignals.splice(idx, 1);
+            }
+            renderRouterTab();
+        }
+
+        function updatePattern(type, idx, value) {
+            if (type === 'light') {
+                state.routerConfig.lightPatterns[idx] = value;
+            } else {
+                state.routerConfig.deepSignals[idx] = value;
+            }
+        }
+
+        function renderKeywordTags(lang, keywords) {
+            const container = document.getElementById(
+                lang === 'hebrew' ? 'hebrewKeywordsContainer' : 'englishKeywordsContainer'
+            );
+            container.innerHTML = '';
+
+            const tagsDiv = document.createElement('div');
+            tagsDiv.className = 'tags-container';
+
+            keywords.forEach(keyword => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                tag.innerHTML = `
+                    <span>${keyword}</span>
+                    <button type="button" class="btn-remove-tag" onclick="removeKeyword('${lang}', '${keyword}')">×</button>
+                `;
+                tagsDiv.appendChild(tag);
+            });
+
+            container.appendChild(tagsDiv);
+        }
+
+        function addKeyword(lang, value) {
+            if (!value.trim()) return;
+            const arr = lang === 'hebrew' ? state.routerConfig.emotionalKeywordsHebrew : state.routerConfig.emotionalKeywordsEnglish;
+            if (!arr.includes(value)) {
+                arr.push(value);
+                renderKeywordTags(lang, arr);
+            }
+        }
+
+        function removeKeyword(lang, keyword) {
+            const arr = lang === 'hebrew' ? state.routerConfig.emotionalKeywordsHebrew : state.routerConfig.emotionalKeywordsEnglish;
+            const idx = arr.indexOf(keyword);
+            if (idx >= 0) {
+                arr.splice(idx, 1);
+                renderKeywordTags(lang, arr);
+            }
+        }
+
+        function testRoute() {
+            const input = document.getElementById('testRouteInput').value;
+            const result = document.getElementById('testRouteResult');
+
+            // Local route determination
+            let route = 'light';
+            let matched = [];
+
+            // Check deep signals first
+            state.routerConfig.deepSignals.forEach(pattern => {
+                try {
+                    if (new RegExp(pattern, 'i').test(input)) {
+                        route = 'deep';
+                        matched.push(pattern);
+                    }
+                } catch (e) { }
+            });
+
+            // Check medium if not deep
+            if (route !== 'deep') {
+                state.routerConfig.lightPatterns.forEach(pattern => {
+                    try {
+                        if (new RegExp(pattern, 'i').test(input)) {
+                            route = 'medium';
+                            matched.push(pattern);
+                        }
+                    } catch (e) { }
+                });
+            }
+
+            result.textContent = `Route: ${route.toUpperCase()}\nMatched patterns: ${matched.join(', ') || 'none'}`;
+            result.classList.add('show');
+        }
+
+        function saveRouterConfig() {
+            fetch('http://localhost:8766/api/router-config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(state.routerConfig)
+            })
+                .then(r => r.json())
+                .then(() => {
+                    showToast('Router config saved', false);
+                })
+                .catch(err => {
+                    console.error('Failed to save router config:', err);
+                    showToast('Failed to save: ' + err.message, true);
+                });
+        }
+
+        // ============================================================================
+        // INSPECTOR TAB
+        // ============================================================================
+
+        function renderInspector() {
+            const container = document.getElementById('inspectorContainer');
+
+            if (state.turns.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <div class="empty-state-text">No turns yet. Interact with agents to populate.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            state.turns.forEach((turn, index) => {
+                const card = document.createElement('div');
+                card.className = 'turn-card';
+
+                const routeClass = turn.route ? turn.route : '';
+                const routeDisplay = turn.route ? turn.route.toUpperCase() : '—';
+
+                card.innerHTML = `
+                    <div class="turn-header">
+                        <div class="turn-chevron"></div>
+                        <div class="turn-info">
+                            <div class="turn-index">Turn #${index + 1}</div>
+                            <div class="turn-input-preview">${turn.input || '(empty)'}</div>
+                            <div class="turn-route-badge ${routeClass}">Route: ${routeDisplay}</div>
+                        </div>
+                    </div>
+                    <div class="turn-body">
+                        ${turn.input ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">User Input</div>
+                                <div class="turn-section-content">${escapeHtml(turn.input)}</div>
+                            </div>
+                        ` : ''}
+
+                        ${turn.nlp ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">NLP Results</div>
+                                <div class="turn-section-content"><pre>${JSON.stringify(turn.nlp, null, 2)}</pre></div>
+                            </div>
+                        ` : ''}
+
+                        ${turn.beliefGraphDelta ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">Belief Graph Delta</div>
+                                <div class="turn-section-content"><pre>${JSON.stringify(turn.beliefGraphDelta, null, 2)}</pre></div>
+                            </div>
+                        ` : ''}
+
+                        ${turn.rag ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">RAG Results</div>
+                                <div class="turn-section-content"><pre>${JSON.stringify(turn.rag, null, 2)}</pre></div>
+                            </div>
+                        ` : ''}
+
+                        ${turn.strategy ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">Strategy Vectors</div>
+                                <div class="turn-section-content"><pre>${JSON.stringify(turn.strategy, null, 2)}</pre></div>
+                            </div>
+                        ` : ''}
+
+                        ${turn.output ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">Final Response</div>
+                                <div class="turn-section-content">${escapeHtml(turn.output)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                card.querySelector('.turn-header').addEventListener('click', () => {
+                    card.classList.toggle('expanded');
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast' + (isError ? ' error' : '');
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // ============================================================================
+        // CHAT PANEL
+        // ============================================================================
+
+        let chatWaiting = false;
+
+        // Allow Enter key to send
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('chatInput');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendChatMessage();
+                    }
+                });
+            }
+        });
+
+        function appendChatMsg(text, type, routeLabel) {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+            const div = document.createElement('div');
+            div.className = `chat-msg ${type}`;
+            div.textContent = text;
+            if (routeLabel) {
+                const route = document.createElement('div');
+                route.className = 'msg-route';
+                route.textContent = '🔀 ' + routeLabel;
+                div.appendChild(route);
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function sendChatMessage() {
+            if (chatWaiting) return;
+            const input = document.getElementById('chatInput');
+            const btn = document.getElementById('chatSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            input.disabled = true;
+            btn.disabled = true;
+            chatWaiting = true;
+
+            // Show user message
+            appendChatMsg(text, 'user');
+
+            // Show thinking placeholder
+            const thinkingEl = appendChatMsg('⏳ מעבד...', 'bot thinking');
+
+            fetch('http://localhost:8766/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            })
+            .then(r => r.json())
+            .then(data => {
+                thinkingEl.remove();
+                if (data.error) {
+                    appendChatMsg('❌ שגיאה: ' + data.error, 'bot');
+                } else {
+                    // Get route from last event in the log
+                    const lastRoute = document.getElementById('currentRoute')?.textContent || '';
+                    appendChatMsg(data.reply, 'bot', lastRoute || null);
+                }
+            })
+            .catch(err => {
+                thinkingEl.remove();
+                appendChatMsg('❌ אין חיבור לשרת — הרץ את run_chat.py', 'bot');
+            })
+            .finally(() => {
+                input.disabled = false;
+                btn.disabled = false;
+                chatWaiting = false;
+                input.focus();
+            });
+        }
+
+        // ============================================================================
+        // START
+        // ============================================================================
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
