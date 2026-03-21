@@ -1145,9 +1145,58 @@
             }
         }
 
+        /* Mobile panel toggle tabs */
+        .mobile-panel-tabs {
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .mobile-panel-tab {
+            flex: 1;
+            padding: 10px;
+            background: #0d1117;
+            border: none;
+            border-bottom: 2px solid #1e2329;
+            color: #666;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .mobile-panel-tab.active {
+            color: #00d9ff;
+            border-bottom-color: #00d9ff;
+            background: #0a0e13;
+        }
+
         @media (max-width: 900px) {
+            .mobile-panel-tabs {
+                display: flex;
+            }
+
             .flow-container {
                 grid-template-columns: 1fr;
+                grid-template-rows: 1fr;
+            }
+
+            .pipeline-canvas {
+                display: none;
+            }
+
+            .pipeline-canvas.mobile-visible {
+                display: block;
+            }
+
+            .right-sidebar {
+                display: flex;
+            }
+
+            .right-sidebar.mobile-hidden {
+                display: none;
             }
 
             .prompts-container {
@@ -1155,7 +1204,16 @@
             }
 
             .event-log {
-                max-height: 300px;
+                max-height: 200px;
+                min-height: 120px;
+            }
+
+            .header-right .stat-badge {
+                display: none;
+            }
+
+            .header-right {
+                gap: 12px;
             }
         }
     </style>
@@ -1221,6 +1279,11 @@
 
         <!-- FLOW TAB -->
         <div class="tab-content active" id="flow-tab">
+            <!-- Mobile-only tab bar to switch between Pipeline and Chat -->
+            <div class="mobile-panel-tabs">
+                <button class="mobile-panel-tab" onclick="mobileSwitchPanel('pipeline')">🔮 Pipeline</button>
+                <button class="mobile-panel-tab active" onclick="mobileSwitchPanel('chat')">💬 Chat</button>
+            </div>
             <div class="flow-container">
 
                 <!-- LEFT: full-height pipeline visualization -->
@@ -1494,6 +1557,25 @@
                 showToast(`Could not reach ${API_BASE} — is run_chat.py running?`, '#ff3333');
             }
             setTimeout(() => { btn.textContent = '⚡ PING'; btn.disabled = false; }, 2500);
+        }
+
+        // Mobile panel toggle: switch between pipeline view and chat view
+        function mobileSwitchPanel(panel) {
+            const pipelineCanvas = document.querySelector('.pipeline-canvas');
+            const rightSidebar = document.querySelector('.right-sidebar');
+            const tabs = document.querySelectorAll('.mobile-panel-tab');
+
+            if (panel === 'pipeline') {
+                pipelineCanvas.classList.add('mobile-visible');
+                rightSidebar.classList.add('mobile-hidden');
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+            } else {
+                pipelineCanvas.classList.remove('mobile-visible');
+                rightSidebar.classList.remove('mobile-hidden');
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+            }
         }
 
         function restartDashboard() {
