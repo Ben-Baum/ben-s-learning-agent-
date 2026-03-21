@@ -226,7 +226,8 @@ class APIHandler(BaseHTTPRequestHandler):
             self._json_response({"error": "pipeline not running"}, 503)
             return
         try:
-            reply = _chat_handler(user_text)
+            session_id = data.get("session_id")
+            reply = _chat_handler(user_text, session_id=session_id)
             self._json_response({"reply": reply})
         except Exception as e:
             self._json_response({"error": str(e)}, 500)

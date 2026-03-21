@@ -1296,6 +1296,9 @@
             ? 'http://localhost:8766'
             : 'https://test-agents-0-1.onrender.com';
 
+        // Unique session ID per page load — refresh = new conversation
+        const SESSION_ID = crypto.randomUUID();
+
         const state = {
             ws: null,
             connected: false,
@@ -2420,7 +2423,7 @@
             fetch(`${API_BASE}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({ message: text, session_id: SESSION_ID })
             })
             .then(r => r.json())
             .then(data => {
