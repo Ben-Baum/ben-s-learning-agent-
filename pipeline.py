@@ -9,7 +9,7 @@ Routes messages through 3 paths based on Smart Router classification:
 Inspired by CrewAI efficiency: not every step needs an LLM call.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from models import (
     NLPExtractionResult,
@@ -107,7 +107,7 @@ def retrieve_knowledge(
 def compute_tactical_strategy(
     *,
     updated_belief_graph_json: Dict[str, Any],
-    recent_nlp_results: List[NLPExtractionResult] | None = None,
+    recent_nlp_results: Optional[List[NLPExtractionResult]] = None,
     knowledge_context: str = "",
 ) -> TacticalStrategyResult:
     agent_event("tactician", "thinking", {"content": "Analyzing belief graph + knowledge…"}, status="thinking")
@@ -141,8 +141,8 @@ def compute_tactical_strategy(
 def front_agent_reply(
     *,
     conversation_history: List[Dict[str, str]],
-    strategy: TacticalStrategyResult | None = None,
-    nlp_result: NLPExtractionResult | None = None,
+    strategy: Optional[TacticalStrategyResult] = None,
+    nlp_result: Optional[NLPExtractionResult] = None,
 ) -> str:
     agent_event("front_agent", "thinking", {"content": "Composing response…"}, status="thinking")
     import json

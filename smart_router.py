@@ -16,7 +16,7 @@ Design philosophy:
 """
 
 import re
-from typing import Literal
+from typing import List, Literal
 
 RouteType = Literal["light", "medium", "deep"]
 
@@ -131,7 +131,7 @@ _EMOTIONAL_KEYWORDS_EN = {
 }
 
 
-def _count_emotional_hits(text: str, words: list[str]) -> int:
+def _count_emotional_hits(text: str, words: List[str]) -> int:
     """Count emotional signal hits using roots (Hebrew) and keywords (English)."""
     hits = 0
     # Hebrew: check roots against full text (catches all conjugations)

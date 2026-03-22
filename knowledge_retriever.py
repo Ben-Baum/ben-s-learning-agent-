@@ -46,7 +46,7 @@ def _build_fts_query(text: str) -> str:
 
 def retrieve(
     user_text: str,
-    nlp_keywords: list[str] | None = None,
+    nlp_keywords: List[str] = None,
     top_k: int = TOP_K,
     max_chars: int = MAX_CHARS,
 ) -> List[Dict[str, Any]]:

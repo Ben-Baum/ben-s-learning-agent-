@@ -147,6 +147,8 @@ class APIHandler(BaseHTTPRequestHandler):
             self._get_sse_status()
         elif path == "/api/ping":
             self._ping()
+        elif path == "/api/health":
+            self._health()
         else:
             self.send_error(404)
 
@@ -239,6 +241,16 @@ class APIHandler(BaseHTTPRequestHandler):
         self._json_response({
             "connected_clients": count,
             "history_size": len(_event_history),
+        })
+
+    def _health(self):
+        """Health check — shows whether pipeline loaded and chat is ready."""
+        import sys
+        self._json_response({
+            "status": "ok" if _chat_handler is not None else "error",
+            "chat_handler_registered": _chat_handler is not None,
+            "python_version": sys.version,
+            "port": HTTP_PORT,
         })
 
     def _ping(self):

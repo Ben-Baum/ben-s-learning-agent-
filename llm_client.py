@@ -134,7 +134,7 @@ def call_llm_json(
 
     def _call(client):
         messages = list(msgs)  # fresh copy per attempt
-        last_error: Exception | None = None
+        last_error = None
 
         for attempt in range(max_retries + 1):
             resp = client.chat.completions.create(
