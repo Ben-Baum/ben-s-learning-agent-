@@ -388,7 +388,8 @@ class APIHandler(BaseHTTPRequestHandler):
 
 
 def _run_http_server():
-    server = HTTPServer(("localhost", HTTP_PORT), APIHandler)
+    host = os.environ.get("HOST", "0.0.0.0")
+    server = HTTPServer((host, HTTP_PORT), APIHandler)
     server.serve_forever()
 
 
