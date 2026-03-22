@@ -147,8 +147,6 @@ class APIHandler(BaseHTTPRequestHandler):
             self._get_sse_status()
         elif path == "/api/ping":
             self._ping()
-        elif path == "/api/health":
-            self._health()
         else:
             self.send_error(404)
 
@@ -228,8 +226,7 @@ class APIHandler(BaseHTTPRequestHandler):
             self._json_response({"error": "pipeline not running"}, 503)
             return
         try:
-            session_id = data.get("session_id")
-            reply = _chat_handler(user_text, session_id=session_id)
+            reply = _chat_handler(user_text)
             self._json_response({"reply": reply})
         except Exception as e:
             self._json_response({"error": str(e)}, 500)
@@ -241,16 +238,6 @@ class APIHandler(BaseHTTPRequestHandler):
         self._json_response({
             "connected_clients": count,
             "history_size": len(_event_history),
-        })
-
-    def _health(self):
-        """Health check — shows whether pipeline loaded and chat is ready."""
-        import sys
-        self._json_response({
-            "status": "ok" if _chat_handler is not None else "error",
-            "chat_handler_registered": _chat_handler is not None,
-            "python_version": sys.version,
-            "port": HTTP_PORT,
         })
 
     def _ping(self):
@@ -387,22 +374,21 @@ class APIHandler(BaseHTTPRequestHandler):
                 {"id": "nlp_analyzer", "role": "NLP Analyzer", "type": "llm", "description": "חילוץ רגשות, עיוותים ואמונות", "prompt_key": "SYSTEM_PROMPT_NLP_ANALYZER"},
                 {"id": "belief_graph", "role": "Belief Graph", "type": "code", "description": "עדכון גרף אמונות (rule-based)", "prompt_key": "SYSTEM_PROMPT_BELIEF_GRAPH_MAPPER"},
                 {"id": "knowledge_retriever", "role": "Knowledge Retriever", "type": "code", "description": "חיפוש RAG ב-SQLite", "prompt_key": None},
-                {"id": "tactician", "role": "Tactical Strategist", "type": "llm", "description": "יצירת וקטורי חקירה", "prompt_key": "SYSTEM_PROMPT_TACTICAL_STRATEGIST"},
-                {"id": "front_agent", "role": "Front Agent", "type": "llm", "description": "תגובה סופית למשתמש בעברית", "prompt_key": "FRONT_AGENT_SYSTEM_PROMPT"},
+                {"id": "tactician", "role": "Tactical Strategist", "type": "llm", "description": "יצירת כיוון פנימי עדין לשיחה", "prompt_key": "SYSTEM_PROMPT_TACTICAL_STRATEGIST"},
+                {"id": "front_agent", "role": "Front Agent", "type": "llm", "description": "תגובה סופית למשתמש בעברית לפי front hint קצר", "prompt_key": "FRONT_AGENT_SYSTEM_PROMPT"},
             ],
             "routes": {
                 "light": {"agents": ["router", "front_agent"], "api_calls": 1},
                 "medium": {"agents": ["router", "nlp_analyzer", "belief_graph", "front_agent"], "api_calls": 2},
                 "deep": {"agents": ["router", "nlp_analyzer", "belief_graph", "knowledge_retriever", "tactician", "front_agent"], "api_calls": 3},
             },
-            "model": "llama-3.3-70b-versatile",
-            "provider": "Groq",
+            "model": "gemini-2.5-flash",
+            "provider": "Google Gemini via OpenAI-compatible endpoint",
         })
 
 
 def _run_http_server():
-    host = os.environ.get("HOST", "0.0.0.0")
-    server = HTTPServer((host, HTTP_PORT), APIHandler)
+    server = HTTPServer(("localhost", HTTP_PORT), APIHandler)
     server.serve_forever()
 
 

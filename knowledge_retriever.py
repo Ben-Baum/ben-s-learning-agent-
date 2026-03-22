@@ -6,7 +6,7 @@ Used by pipeline.py to inject expert knowledge into agent prompts.
 
 import os
 import sqlite3
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "knowledge", "knowledge.db")
 
@@ -46,7 +46,7 @@ def _build_fts_query(text: str) -> str:
 
 def retrieve(
     user_text: str,
-    nlp_keywords: List[str] = None,
+    nlp_keywords: Optional[List[str]] = None,
     top_k: int = TOP_K,
     max_chars: int = MAX_CHARS,
 ) -> List[Dict[str, Any]]:

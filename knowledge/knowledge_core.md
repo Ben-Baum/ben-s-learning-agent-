@@ -1,5 +1,5 @@
 # Genie AI — Knowledge Core
-> קובץ זה נטען תמיד לפרומפט של Tactical Strategy + Front Agent.
+> קובץ זה נטען תמיד לפרומפטים האחוריים של המערכת, בעיקר NLP Analyzer ו-Tactical Strategy.
 > ~800 טוקנים מקסימום. כל עדכון חייב להישאר קומפקטי.
 > מקור: מחברות NotebookLM — communicator, Steve Andreas, Robert Dilts, Connirae Andreas, Michael Hall, Tad James, Lucas Derks
 

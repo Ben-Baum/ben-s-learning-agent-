@@ -157,15 +157,49 @@ class InvestigationVector(BaseModel):
     short_description: str  # internal description, not for user
     suggested_angle_for_front_agent: str  # natural language hint
 
+    @field_validator("focus_type", mode="before")
+    @classmethod
+    def normalize_focus_type(cls, v: str) -> str:
+        if not isinstance(v, str):
+            return "other"
+        normalized = v.strip().lower()
+        aliases = {
+            "belief": "identity",
+            "beliefs": "identity",
+            "core_belief": "identity",
+            "core_beliefs": "identity",
+            "emotion": "emotion_clarification",
+            "emotions": "emotion_clarification",
+            "context": "context_clarification",
+            "clarification": "context_clarification",
+            "relationship": "relationships",
+            "relationship_dynamics": "relationships",
+            "coping": "coping_strategies",
+            "future": "future_fears",
+            "values_alignment": "values",
+        }
+        normalized = aliases.get(normalized, normalized)
+        allowed = {
+            "resistance",
+            "emotion_clarification",
+            "context_clarification",
+            "values",
+            "identity",
+            "coping_strategies",
+            "relationships",
+            "future_fears",
+            "other",
+        }
+        return normalized if normalized in allowed else "other"
+
 
 class StrategyMeta(BaseModel):
-    schema_version: str  # e.g. "1.0"
-    detected_resistance: bool
-    strongest_signal_belief_ids: List[str]
+    schema_version: str = "1.0"
+    detected_resistance: bool = False
+    strongest_signal_belief_ids: List[str] = []
     notes_technical: Optional[str] = None
 
 
 class TacticalStrategyResult(BaseModel):
     meta: StrategyMeta
-    investigation_vectors: List[InvestigationVector]
-
+    investigation_vectors: List[InvestigationVector] = []
