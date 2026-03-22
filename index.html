@@ -301,6 +301,248 @@
             overflow-x: hidden;
         }
 
+        .live-run-shell {
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .live-panel {
+            background: #0d1117;
+            border: 1px solid #1e2329;
+            border-radius: 10px;
+            overflow: hidden;
+            min-height: 240px;
+        }
+
+        .live-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #1e2329;
+            background: linear-gradient(180deg, rgba(17, 23, 31, 0.95), rgba(13, 17, 23, 0.95));
+        }
+
+        .live-panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #8b949e;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .live-panel-meta {
+            font-size: 11px;
+            color: #39d0d8;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .execution-map {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .execution-lane {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #1b2430;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(11, 16, 22, 0.95), rgba(8, 12, 16, 0.95));
+        }
+
+        .execution-lane.active {
+            border-color: currentColor;
+            box-shadow: inset 0 0 0 1px currentColor, 0 0 18px color-mix(in srgb, currentColor 24%, transparent);
+        }
+
+        .lane-label {
+            min-width: 86px;
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .lane-path {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .live-node {
+            min-width: 130px;
+            max-width: 180px;
+            border: 1px solid #243447;
+            border-radius: 10px;
+            background: #0a0e13;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .live-node:hover {
+            border-color: #39d0d8;
+            transform: translateY(-1px);
+        }
+
+        .live-node.selected {
+            border-color: #39d0d8;
+            box-shadow: 0 0 18px rgba(57, 208, 216, 0.18);
+        }
+
+        .live-node.active {
+            animation: pulse 1.1s ease-in-out infinite;
+        }
+
+        .live-node-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+
+        .live-node-name {
+            font-size: 10px;
+            font-weight: 700;
+            color: #e6edf3;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .live-node-state {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2d3f52;
+            flex-shrink: 0;
+        }
+
+        .live-node-state.active { background: #39d0d8; box-shadow: 0 0 10px #39d0d8; }
+        .live-node-state.done { background: #3fb950; box-shadow: 0 0 10px #3fb950; }
+        .live-node-state.error { background: #f85149; box-shadow: 0 0 10px #f85149; }
+
+        .live-node-role {
+            font-size: 10px;
+            color: #8b949e;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .live-node-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .live-node-pill {
+            font-size: 9px;
+            color: #9fb3c8;
+            background: rgba(31, 41, 55, 0.88);
+            border: 1px solid #243447;
+            border-radius: 999px;
+            padding: 2px 7px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .live-arrow {
+            font-size: 18px;
+            color: #32404e;
+            flex-shrink: 0;
+        }
+
+        .details-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 14px;
+            height: calc(100% - 50px);
+            overflow: auto;
+        }
+
+        .detail-block {
+            border: 1px solid #1b2430;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0a0e13;
+        }
+
+        .detail-block-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #8b949e;
+            padding: 10px 12px;
+            border-bottom: 1px solid #1b2430;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .detail-block-content {
+            padding: 12px;
+            color: #c9d1d9;
+            font-size: 12px;
+            line-height: 1.55;
+            overflow: auto;
+            max-height: 220px;
+        }
+
+        .turn-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 14px;
+        }
+
+        .timeline-event {
+            border: 1px solid #1b2430;
+            border-radius: 8px;
+            background: #0a0e13;
+            padding: 10px 12px;
+        }
+
+        .timeline-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: #8b949e;
+        }
+
+        .timeline-agent {
+            color: #39d0d8;
+            font-weight: 700;
+        }
+
+        .timeline-type {
+            color: #d29922;
+            text-transform: uppercase;
+        }
+
+        .timeline-json {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #9fb3c8;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
         .pipeline {
             display: flex;
             flex-direction: column;
@@ -1145,58 +1387,13 @@
             }
         }
 
-        /* Mobile panel toggle tabs */
-        .mobile-panel-tabs {
-            display: none;
-            flex-shrink: 0;
-        }
-
-        .mobile-panel-tab {
-            flex: 1;
-            padding: 10px;
-            background: #0d1117;
-            border: none;
-            border-bottom: 2px solid #1e2329;
-            color: #666;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
-        }
-
-        .mobile-panel-tab.active {
-            color: #00d9ff;
-            border-bottom-color: #00d9ff;
-            background: #0a0e13;
-        }
-
         @media (max-width: 900px) {
-            .mobile-panel-tabs {
-                display: flex;
-            }
-
             .flow-container {
                 grid-template-columns: 1fr;
-                grid-template-rows: 1fr;
             }
 
-            .pipeline-canvas {
-                display: none;
-            }
-
-            .pipeline-canvas.mobile-visible {
-                display: block;
-            }
-
-            .right-sidebar {
-                display: flex;
-            }
-
-            .right-sidebar.mobile-hidden {
-                display: none;
+            .live-run-shell {
+                grid-template-columns: 1fr;
             }
 
             .prompts-container {
@@ -1204,16 +1401,7 @@
             }
 
             .event-log {
-                max-height: 200px;
-                min-height: 120px;
-            }
-
-            .header-right .stat-badge {
-                display: none;
-            }
-
-            .header-right {
-                gap: 12px;
+                max-height: 300px;
             }
         }
     </style>
@@ -1279,15 +1467,35 @@
 
         <!-- FLOW TAB -->
         <div class="tab-content active" id="flow-tab">
-            <!-- Mobile-only tab bar to switch between Pipeline and Chat -->
-            <div class="mobile-panel-tabs">
-                <button class="mobile-panel-tab" onclick="mobileSwitchPanel('pipeline')">🔮 Pipeline</button>
-                <button class="mobile-panel-tab active" onclick="mobileSwitchPanel('chat')">💬 Chat</button>
-            </div>
             <div class="flow-container">
 
                 <!-- LEFT: full-height pipeline visualization -->
                 <div class="pipeline-canvas">
+                    <div class="live-run-shell">
+                        <div class="live-panel">
+                            <div class="live-panel-header">
+                                <div class="live-panel-title">Execution Map</div>
+                                <div class="live-panel-meta" id="liveRunMeta">No active turn</div>
+                            </div>
+                            <div class="execution-map" id="executionMap"></div>
+                        </div>
+                        <div class="live-panel">
+                            <div class="live-panel-header">
+                                <div class="live-panel-title">Node Details</div>
+                                <div class="live-panel-meta" id="selectedNodeMeta">Select a node</div>
+                            </div>
+                            <div class="details-body" id="nodeDetailsPanel"></div>
+                        </div>
+                    </div>
+
+                    <div class="live-panel" style="margin-bottom:18px;">
+                        <div class="live-panel-header">
+                            <div class="live-panel-title">Turn Timeline</div>
+                            <div class="live-panel-meta" id="turnTimelineMeta">Waiting for events</div>
+                        </div>
+                        <div class="turn-timeline" id="turnTimeline"></div>
+                    </div>
+
                     <div class="pipeline" id="pipeline"></div>
                 </div>
 
@@ -1350,17 +1558,14 @@
     </div>
 
     <script>
+        // Auto-detect: if running on GitHub Pages, use Render backend; otherwise localhost
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? '${API_BASE}'
+            : 'https://test-agents-0-1.onrender.com';
+
         // ============================================================================
         // STATE MANAGEMENT
         // ============================================================================
-
-        // Auto-detect: if running on GitHub Pages, use Render backend; otherwise localhost
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:8766'
-            : 'https://test-agents-0-1.onrender.com';
-
-        // Unique session ID per page load — refresh = new conversation
-        const SESSION_ID = crypto.randomUUID();
 
         const state = {
             ws: null,
@@ -1377,7 +1582,9 @@
             turns: [],
             currentRoute: null,
             agentTypes: {},        // Track agent type (llm or code)
-            agentLastData: new Map() // Last payload per agent
+            agentLastData: new Map(), // Last payload per agent
+            currentTurnId: null,
+            selectedNode: null
         };
 
         // ============================================================================
@@ -1554,28 +1761,9 @@
                 showToast('Ping sent — watch the flow light up!', '#3fb950');
             } catch(e) {
                 btn.textContent = '❌ failed';
-                showToast(`Could not reach ${API_BASE} — is run_chat.py running?`, '#ff3333');
+                showToast('Could not reach ${API_BASE} — is run_chat.py running?', '#ff3333');
             }
             setTimeout(() => { btn.textContent = '⚡ PING'; btn.disabled = false; }, 2500);
-        }
-
-        // Mobile panel toggle: switch between pipeline view and chat view
-        function mobileSwitchPanel(panel) {
-            const pipelineCanvas = document.querySelector('.pipeline-canvas');
-            const rightSidebar = document.querySelector('.right-sidebar');
-            const tabs = document.querySelectorAll('.mobile-panel-tab');
-
-            if (panel === 'pipeline') {
-                pipelineCanvas.classList.add('mobile-visible');
-                rightSidebar.classList.add('mobile-hidden');
-                tabs[0].classList.add('active');
-                tabs[1].classList.remove('active');
-            } else {
-                pipelineCanvas.classList.remove('mobile-visible');
-                rightSidebar.classList.remove('mobile-hidden');
-                tabs[0].classList.remove('active');
-                tabs[1].classList.add('active');
-            }
         }
 
         function restartDashboard() {
@@ -1593,6 +1781,11 @@
             state.agents.clear();
             state.agentLastData.clear();
             state.connected = false;
+            state.events = [];
+            state.turns = [];
+            state.currentRoute = null;
+            state.currentTurnId = null;
+            state.selectedNode = null;
             wsEventTotal = 0;
 
             // 3. אפס UI
@@ -1604,6 +1797,8 @@
             if (routeBadge) routeBadge.style.display = 'none';
             updateConnectionStatus();
             renderPipeline();
+            renderEventLog();
+            renderInspector();
 
             showToast('🔄 מתחבר מחדש...', '#f78530');
 
@@ -1669,14 +1864,18 @@
             if (type === 'turn_start') {
                 // New turn begins — clear per-agent data display
                 state.agentLastData.clear();
+                state.selectedNode = 'router';
                 // Store router input
                 state.agentLastData.set('router', { input: data?.input || '', _type: 'turn_start' });
+                state.currentTurnId = data?.id || Date.now();
                 state.turns.unshift({
-                    id: data?.id || Date.now(),
+                    id: state.currentTurnId,
                     input: data?.input || '',
                     route: null, nlp: null,
                     beliefGraph: null, rag: null,
-                    strategy: null, output: ''
+                    strategy: null, output: '',
+                    frontHint: null, latencies: null,
+                    events: []
                 });
             } else if (type === 'route_decision') {
                 // Route decided — highlight path
@@ -1696,6 +1895,10 @@
                 if (state.turns.length > 0) state.turns[0].rag = data || {};
             } else if (agent === 'tactician' && type === 'result') {
                 if (state.turns.length > 0) state.turns[0].strategy = data || {};
+            } else if (agent === 'front_agent' && type === 'message') {
+                if (state.turns.length > 0) state.turns[0].frontHint = data?.front_hint || null;
+            } else if (agent === 'router' && type === 'result') {
+                if (state.turns.length > 0) state.turns[0].latencies = data?.latency_ms || null;
             } else if (type === 'turn_result') {
                 if (state.turns.length > 0) {
                     state.turns[0].output = data?.text || '';
@@ -1705,6 +1908,17 @@
                     state.currentRoute = null;
                     renderPipeline();
                 }, 3000);
+            }
+
+            if (state.turns.length > 0) {
+                state.turns[0].events.push({
+                    agent,
+                    type,
+                    status,
+                    ts: ts || new Date().toISOString(),
+                    data: data || {}
+                });
+                if (state.turns[0].events.length > 80) state.turns[0].events.shift();
             }
 
             renderInspector();
@@ -1805,6 +2019,197 @@
 
         function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : (s || ''); }
         function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function prettyJson(obj) { return escHtml(JSON.stringify(obj ?? {}, null, 2)); }
+
+        function latestTurn() {
+            return state.turns.length ? state.turns[0] : null;
+        }
+
+        function nodeStateFor(agentName, turn) {
+            const agentState = state.agents.get(agentName);
+            const active = agentState && (agentState.status === 'active' || agentState.status === 'thinking');
+            if (active) return 'active';
+            if (agentState && agentState.status === 'error') return 'error';
+            if (!turn) return 'idle';
+            const hasEvent = turn.events?.some(ev => ev.agent === agentName);
+            return hasEvent ? 'done' : 'idle';
+        }
+
+        function nodeMetaFor(agentName, turn) {
+            if (!turn) return [];
+            if (agentName === 'router') {
+                return [turn.route ? `route:${turn.route}` : 'waiting'];
+            }
+            if (agentName === 'nlp_analyzer' && turn.nlp) {
+                return [
+                    turn.nlp.emotions?.length ? `${turn.nlp.emotions.length} emotions` : 'no emotions',
+                    turn.latencies?.nlp_ms ? `${turn.latencies.nlp_ms}ms` : null,
+                ].filter(Boolean);
+            }
+            if (agentName === 'belief_graph' && turn.beliefGraph) {
+                return [
+                    turn.beliefGraph.total_nodes !== undefined ? `${turn.beliefGraph.total_nodes} nodes` : null,
+                    turn.latencies?.graph_ms ? `${turn.latencies.graph_ms}ms` : null,
+                ].filter(Boolean);
+            }
+            if (agentName === 'knowledge_retriever' && turn.rag) {
+                return [
+                    turn.rag.found !== undefined ? `${turn.rag.found} chunks` : null,
+                    turn.latencies?.rag_ms ? `${turn.latencies.rag_ms}ms` : null,
+                ].filter(Boolean);
+            }
+            if (agentName === 'tactician' && turn.strategy) {
+                return [
+                    turn.strategy.vectors?.length ? `${turn.strategy.vectors.length} vectors` : '0 vectors',
+                    turn.latencies?.strategy_ms ? `${turn.latencies.strategy_ms}ms` : null,
+                ].filter(Boolean);
+            }
+            if (agentName === 'front_agent') {
+                return [
+                    turn.frontHint?.tone ? `tone:${turn.frontHint.tone}` : null,
+                    turn.latencies?.front_ms ? `${turn.latencies.front_ms}ms` : null,
+                ].filter(Boolean);
+            }
+            return [];
+        }
+
+        function selectNode(agentName) {
+            state.selectedNode = agentName;
+            renderPipeline();
+        }
+
+        function renderExecutionMap() {
+            const container = document.getElementById('executionMap');
+            const meta = document.getElementById('liveRunMeta');
+            const turn = latestTurn();
+            if (!container || !meta) return;
+
+            if (!turn) {
+                meta.textContent = 'No active turn';
+                container.innerHTML = `<div class="empty-state" style="height:180px;"><div class="empty-state-icon">🧠</div><div class="empty-state-text">שלח הודעה כדי לראות execution map חי</div></div>`;
+                return;
+            }
+
+            meta.textContent = `Turn #${state.turns.length} · ${turn.route ? turn.route.toUpperCase() : 'ROUTING'} · ${truncate(turn.input, 60)}`;
+
+            const lanes = [
+                ['light', '🟢 LIGHT', ['router', 'front_agent']],
+                ['medium', '🟡 MEDIUM', ['router', 'nlp_analyzer', 'belief_graph', 'front_agent']],
+                ['deep', '🟣 DEEP', ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'front_agent']],
+            ];
+
+            container.innerHTML = lanes.map(([routeName, label, nodes]) => {
+                const color = ROUTE_COLORS[routeName];
+                const active = turn.route === routeName;
+                return `
+                    <div class="execution-lane ${active ? 'active' : ''}" style="color:${color}">
+                        <div class="lane-label">${label}</div>
+                        <div class="lane-path">
+                            ${nodes.map((name, idx) => {
+                                const agentDef = AGENTS.find(a => a.name === name);
+                                const nodeState = nodeStateFor(name, turn);
+                                const metaPills = nodeMetaFor(name, turn)
+                                    .map(value => `<span class="live-node-pill">${escHtml(value)}</span>`)
+                                    .join('');
+                                return `
+                                    <div class="live-node ${state.selectedNode === name ? 'selected' : ''} ${nodeState === 'active' ? 'active' : ''}" onclick="selectNode('${name}')">
+                                        <div class="live-node-head">
+                                            <div class="live-node-name">${escHtml(name)}</div>
+                                            <div class="live-node-state ${nodeState}"></div>
+                                        </div>
+                                        <div class="live-node-role">${escHtml(agentDef?.role || name)}</div>
+                                        <div class="live-node-meta">${metaPills || '<span class="live-node-pill">waiting</span>'}</div>
+                                    </div>
+                                    ${idx < nodes.length - 1 ? '<div class="live-arrow">→</div>' : ''}
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderNodeDetails() {
+            const panel = document.getElementById('nodeDetailsPanel');
+            const meta = document.getElementById('selectedNodeMeta');
+            const turn = latestTurn();
+            if (!panel || !meta) return;
+
+            if (!turn || !state.selectedNode) {
+                meta.textContent = 'Select a node';
+                panel.innerHTML = `<div class="empty-state" style="height:190px;"><div class="empty-state-icon">🧩</div><div class="empty-state-text">בחר node כדי לראות payloads, latency והחזרות</div></div>`;
+                return;
+            }
+
+            const agentName = state.selectedNode;
+            const agentPayload = state.agentLastData.get(agentName) || {};
+            const events = (turn.events || []).filter(ev => ev.agent === agentName).slice(-6).reverse();
+            const latencyKey = {
+                nlp_analyzer: 'nlp_ms',
+                belief_graph: 'graph_ms',
+                knowledge_retriever: 'rag_ms',
+                tactician: 'strategy_ms',
+                front_agent: 'front_ms',
+            }[agentName];
+            const latencyValue = latencyKey ? turn.latencies?.[latencyKey] : null;
+            meta.textContent = `${agentName}${latencyValue ? ` · ${latencyValue}ms` : ''}`;
+
+            const semanticData = {
+                router: { input: turn.input, route: turn.route, latencies: turn.latencies },
+                nlp_analyzer: turn.nlp,
+                belief_graph: turn.beliefGraph,
+                knowledge_retriever: turn.rag,
+                tactician: turn.strategy,
+                front_agent: { front_hint: turn.frontHint, output: turn.output },
+            }[agentName] || {};
+
+            panel.innerHTML = `
+                <div class="detail-block">
+                    <div class="detail-block-title">Latest Payload On Card</div>
+                    <div class="detail-block-content"><pre>${prettyJson(agentPayload)}</pre></div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-block-title">Semantic Output</div>
+                    <div class="detail-block-content"><pre>${prettyJson(semanticData)}</pre></div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-block-title">Recent Events</div>
+                    <div class="detail-block-content">
+                        ${events.length ? events.map(ev => `
+                            <div style="margin-bottom:12px;">
+                                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#d29922;margin-bottom:6px;">
+                                    ${escHtml(ev.type)} · ${escHtml(ev.status || 'idle')} · ${escHtml(new Date(ev.ts).toLocaleTimeString())}
+                                </div>
+                                <pre>${prettyJson(ev.data)}</pre>
+                            </div>
+                        `).join('') : '<div style="color:#8b949e;">No events yet for this node.</div>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTurnTimeline() {
+            const panel = document.getElementById('turnTimeline');
+            const meta = document.getElementById('turnTimelineMeta');
+            const turn = latestTurn();
+            if (!panel || !meta) return;
+            if (!turn) {
+                meta.textContent = 'Waiting for events';
+                panel.innerHTML = `<div class="empty-state" style="height:140px;"><div class="empty-state-icon">⏱</div><div class="empty-state-text">הטיימליין יתמלא בזמן אמת אחרי הודעה ראשונה</div></div>`;
+                return;
+            }
+            meta.textContent = `${turn.events?.length || 0} events captured`;
+            panel.innerHTML = (turn.events || []).slice().reverse().map(ev => `
+                <div class="timeline-event">
+                    <div class="timeline-head">
+                        <span class="timeline-agent">${escHtml(ev.agent)}</span>
+                        <span class="timeline-type">${escHtml(ev.type)}</span>
+                        <span>${escHtml(new Date(ev.ts).toLocaleTimeString())}</span>
+                    </div>
+                    <div class="timeline-json">${prettyJson(ev.data)}</div>
+                </div>
+            `).join('') || `<div class="empty-state" style="height:140px;"><div class="empty-state-text">No events yet.</div></div>`;
+        }
 
         function agentCard(agentName, extraLabel) {
             const agentDef = AGENTS.find(a => a.name === agentName);
@@ -1905,6 +2310,9 @@
 
         function renderPipeline() {
             const pipeline = document.getElementById('pipeline');
+            renderExecutionMap();
+            renderNodeDetails();
+            renderTurnTimeline();
 
             // Top: user message node
             const routeLabel = state.currentRoute
@@ -2027,7 +2435,7 @@
         // ============================================================================
 
         function loadPrompts() {
-            fetch(`${API_BASE}/api/prompts`)
+            fetch('${API_BASE}/api/prompts')
                 .then(r => r.json())
                 .then(data => {
                     Object.entries(data).forEach(([key, value]) => {
@@ -2104,7 +2512,7 @@
         }
 
         function savePrompt(promptId, text) {
-            fetch(`${API_BASE}/api/prompts`, {
+            fetch('${API_BASE}/api/prompts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt_name: promptId, text })
@@ -2125,7 +2533,7 @@
         // ============================================================================
 
         function loadRouterConfig() {
-            fetch(`${API_BASE}/api/router-config`)
+            fetch('${API_BASE}/api/router-config')
                 .then(r => r.json())
                 .then(data => {
                     state.routerConfig = data;
@@ -2324,7 +2732,7 @@
         }
 
         function saveRouterConfig() {
-            fetch(`${API_BASE}/api/router-config`, {
+            fetch('${API_BASE}/api/router-config', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(state.routerConfig)
@@ -2410,6 +2818,20 @@
                             </div>
                         ` : ''}
 
+                        ${turn.frontHint ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">Front Hint</div>
+                                <div class="turn-section-content"><pre>${JSON.stringify(turn.frontHint, null, 2)}</pre></div>
+                            </div>
+                        ` : ''}
+
+                        ${turn.latencies ? `
+                            <div class="turn-section">
+                                <div class="turn-section-title">Latencies</div>
+                                <div class="turn-section-content"><pre>${JSON.stringify(turn.latencies, null, 2)}</pre></div>
+                            </div>
+                        ` : ''}
+
                         ${turn.output ? `
                             <div class="turn-section">
                                 <div class="turn-section-title">Final Response</div>
@@ -2437,10 +2859,17 @@
         // UTILITY FUNCTIONS
         // ============================================================================
 
-        function showToast(message, isError = false) {
+        function showToast(message, styleArg = false) {
             const toast = document.createElement('div');
+            const isError = styleArg === true;
+            const customColor = typeof styleArg === 'string' ? styleArg : null;
             toast.className = 'toast' + (isError ? ' error' : '');
             toast.textContent = message;
+            if (customColor) {
+                toast.style.borderColor = customColor;
+                toast.style.color = customColor;
+                toast.style.background = `${customColor}22`;
+            }
             document.body.appendChild(toast);
 
             setTimeout(() => {
@@ -2502,10 +2931,10 @@
             // Show thinking placeholder
             const thinkingEl = appendChatMsg('⏳ מעבד...', 'bot thinking');
 
-            fetch(`${API_BASE}/api/chat`, {
+            fetch('${API_BASE}/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, session_id: SESSION_ID })
+                body: JSON.stringify({ message: text })
             })
             .then(r => r.json())
             .then(data => {
