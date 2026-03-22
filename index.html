@@ -1413,7 +1413,7 @@
         padding:6px 20px; text-align:center; font-size:12px;
         font-family:'IBM Plex Mono',monospace; color:#ff6666; flex-shrink:0;
     ">
-        ⚠️ Not connected — run <strong style="color:#ff9999;">python run_chat.py</strong>
+        ⚠️ Not connected to backend. Make sure the server is running and reachable,
         then refresh this page. The banner disappears when connected.
     </div>
 
@@ -1558,10 +1558,29 @@
     </div>
 
     <script>
-        // Auto-detect: if running on GitHub Pages, use Render backend; otherwise localhost
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? '${API_BASE}'
-            : 'https://test-agents-0-1.onrender.com';
+        function resolveApiBase() {
+            const params = new URLSearchParams(window.location.search);
+            const queryBase = params.get('apiBase');
+            if (queryBase) {
+                localStorage.setItem('genie_api_base', queryBase);
+                return queryBase.replace(/\/$/, '');
+            }
+
+            const savedBase = localStorage.getItem('genie_api_base');
+            if (savedBase) {
+                return savedBase.replace(/\/$/, '');
+            }
+
+            const isLocal =
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1';
+
+            return isLocal
+                ? 'http://localhost:8766'
+                : 'https://test-agents-0-1.onrender.com';
+        }
+
+        const API_BASE = resolveApiBase();
 
         // ============================================================================
         // STATE MANAGEMENT
@@ -1726,7 +1745,7 @@
                 if (badge) badge.style.borderLeftColor = '#3fb950';
             } else {
                 dot.classList.remove('connected');
-                label.textContent = 'Disconnected — run: python run_chat.py';
+                label.textContent = `Disconnected — backend: ${API_BASE}`;
                 if (badge) badge.style.borderLeftColor = '#ff3333';
             }
         }
@@ -1761,7 +1780,7 @@
                 showToast('Ping sent — watch the flow light up!', '#3fb950');
             } catch(e) {
                 btn.textContent = '❌ failed';
-                showToast('Could not reach ${API_BASE} — is run_chat.py running?', '#ff3333');
+                showToast(`Could not reach ${API_BASE}`, '#ff3333');
             }
             setTimeout(() => { btn.textContent = '⚡ PING'; btn.disabled = false; }, 2500);
         }
@@ -2435,7 +2454,7 @@
         // ============================================================================
 
         function loadPrompts() {
-            fetch('${API_BASE}/api/prompts')
+            fetch(`${API_BASE}/api/prompts`)
                 .then(r => r.json())
                 .then(data => {
                     Object.entries(data).forEach(([key, value]) => {
@@ -2512,7 +2531,7 @@
         }
 
         function savePrompt(promptId, text) {
-            fetch('${API_BASE}/api/prompts', {
+            fetch(`${API_BASE}/api/prompts`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt_name: promptId, text })
@@ -2533,7 +2552,7 @@
         // ============================================================================
 
         function loadRouterConfig() {
-            fetch('${API_BASE}/api/router-config')
+            fetch(`${API_BASE}/api/router-config`)
                 .then(r => r.json())
                 .then(data => {
                     state.routerConfig = data;
@@ -2732,7 +2751,7 @@
         }
 
         function saveRouterConfig() {
-            fetch('${API_BASE}/api/router-config', {
+            fetch(`${API_BASE}/api/router-config`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(state.routerConfig)
@@ -2931,7 +2950,7 @@
             // Show thinking placeholder
             const thinkingEl = appendChatMsg('⏳ מעבד...', 'bot thinking');
 
-            fetch('${API_BASE}/api/chat', {
+            fetch(`${API_BASE}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text })
@@ -2949,7 +2968,7 @@
             })
             .catch(err => {
                 thinkingEl.remove();
-                appendChatMsg('❌ אין חיבור לשרת — הרץ את run_chat.py', 'bot');
+                appendChatMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
             })
             .finally(() => {
                 input.disabled = false;
