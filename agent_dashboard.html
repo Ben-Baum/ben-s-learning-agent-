@@ -1520,7 +1520,15 @@
             flex-direction: column;
             gap: 10px;
             background: #080c10;
+            transition: background 0.4s ease;
         }
+
+        .agentchat-messages[data-agent-theme="router"] { background: linear-gradient(160deg, #080c10 0%, #0a1738 100%); }
+        .agentchat-messages[data-agent-theme="nlp_analyzer"] { background: linear-gradient(160deg, #080c10 0%, #2a0a2a 100%); }
+        .agentchat-messages[data-agent-theme="belief_graph"] { background: linear-gradient(160deg, #080c10 0%, #052614 100%); }
+        .agentchat-messages[data-agent-theme="knowledge_retriever"] { background: linear-gradient(160deg, #080c10 0%, #2b1f05 100%); }
+        .agentchat-messages[data-agent-theme="tactician"] { background: linear-gradient(160deg, #080c10 0%, #2d0b0b 100%); }
+        .agentchat-messages[data-agent-theme="front_agent"] { background: linear-gradient(160deg, #080c10 0%, #062b2b 100%); }
 
         .agentchat-messages::-webkit-scrollbar { width: 4px; }
         .agentchat-messages::-webkit-scrollbar-thumb { background: #1e2329; border-radius: 2px; }
@@ -3508,12 +3516,16 @@
             select.addEventListener('change', () => {
                 const val = select.value;
                 const info = document.getElementById('agentChatInfo');
+                const messagesContainer = document.getElementById('agentChatMessages');
+                
                 if (val) {
+                    messagesContainer.setAttribute('data-agent-theme', val);
                     const agentDef = AGENTS.find(a => a.name === val);
                     info.textContent = agentDef
                         ? `${agentDef.type.toUpperCase()} · ${agentDef.role}`
                         : '';
                 } else {
+                    messagesContainer.removeAttribute('data-agent-theme');
                     info.textContent = 'מציג אירועים מכל הסוכנים';
                 }
                 renderAgentActivity();
