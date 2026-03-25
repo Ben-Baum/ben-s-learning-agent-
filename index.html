@@ -1372,16 +1372,22 @@
             font-size: 14px;
         }
 
-        /* Responsive */
+        /* Pipeline route columns – class used by renderPipeline() JS */
+        .pipeline-routes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        /* ===== Responsive ===== */
         @media (max-width: 1400px) {
             .router-container {
                 grid-template-columns: 1fr;
             }
-
             .test-route-section {
                 grid-column: 1;
             }
-
             .router-footer {
                 grid-column: 1;
             }
@@ -1391,17 +1397,312 @@
             .flow-container {
                 grid-template-columns: 1fr;
             }
+            .live-run-shell {
+                grid-template-columns: 1fr;
+            }
+            .prompts-container {
+                grid-template-columns: 1fr;
+            }
+            .event-log {
+                max-height: 300px;
+            }
+        }
 
+        /* ===== Tablet (≤768px) ===== */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            /* Header */
+            .header {
+                flex-wrap: wrap;
+                padding: 10px 12px;
+                gap: 10px;
+            }
+            .header-left {
+                font-size: 13px;
+                width: 100%;
+            }
+            .header-right {
+                flex-wrap: wrap;
+                gap: 8px;
+                font-size: 11px;
+                width: 100%;
+            }
+
+            /* Tabs: horizontal scroll */
+            .tab-nav {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 0 10px;
+                scrollbar-width: none;
+            }
+            .tab-nav::-webkit-scrollbar { display: none; }
+            .tab-button {
+                padding: 10px 14px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            /* Main container */
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            .main-container {
+                display: block;
+                overflow: visible;
+            }
+            .tab-content {
+                overflow: visible;
+            }
+            .tab-content.active {
+                display: block;
+            }
+
+            /* Flow tab */
+            .flow-container {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+                gap: 10px;
+            }
+            .right-sidebar {
+                height: auto;
+                max-height: none;
+                order: -1;
+            }
+            .chat-panel {
+                max-height: 350px;
+            }
+
+            /* Execution map */
+            .execution-lane {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .lane-label {
+                min-width: auto;
+                text-align: left;
+                margin-bottom: 4px;
+            }
+            .lane-path {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+            }
+            .live-node {
+                min-width: 110px;
+                max-width: 150px;
+            }
+
+            /* Pipeline columns */
+            .pipeline-routes-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+            }
+
+            /* Live run shell */
             .live-run-shell {
                 grid-template-columns: 1fr;
             }
 
+            /* Prompts */
             .prompts-container {
                 grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 12px;
+            }
+            .prompt-list {
+                max-height: 200px;
             }
 
+            /* Router */
+            .router-container {
+                grid-template-columns: 1fr;
+                padding: 12px;
+                gap: 12px;
+            }
+
+            /* Inspector */
+            .inspector-container {
+                padding: 12px;
+            }
+            .turn-input-preview {
+                max-width: 200px;
+            }
+
+            /* Chat input: touch-friendly */
+            .chat-input {
+                font-size: 16px;
+                padding: 10px 12px;
+                min-height: 44px;
+            }
+            .chat-send-btn {
+                min-height: 44px;
+                min-width: 44px;
+                padding: 10px 14px;
+            }
+
+            /* Buttons: touch targets */
+            .btn {
+                min-height: 44px;
+                padding: 12px 16px;
+            }
+            .btn-small {
+                min-height: 44px;
+                padding: 10px 12px;
+            }
+            .btn-add {
+                min-height: 44px;
+                padding: 10px 12px;
+            }
+
+            /* Event log */
             .event-log {
-                max-height: 300px;
+                max-height: 250px;
+            }
+
+            /* Toast */
+            .toast {
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+            }
+        }
+
+        /* ===== Phone (≤480px) ===== */
+        @media (max-width: 480px) {
+            /* Header compact */
+            .header {
+                padding: 8px 10px;
+            }
+            .header-left {
+                font-size: 12px;
+                letter-spacing: 0.5px;
+            }
+            .header-right {
+                gap: 6px;
+                font-size: 10px;
+            }
+            .stat-badge, .route-badge {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+
+            /* Tabs: even more compact */
+            .tab-button {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            /* Flow */
+            .flow-container {
+                padding: 8px;
+                gap: 8px;
+            }
+            .pipeline-canvas {
+                padding: 10px;
+            }
+
+            /* Execution lanes: compact nodes */
+            .live-node {
+                min-width: 95px;
+                max-width: 130px;
+                padding: 8px;
+            }
+            .live-node-name {
+                font-size: 9px;
+            }
+            .live-node-role {
+                font-size: 9px;
+            }
+
+            /* Prompts */
+            .prompts-container {
+                padding: 8px;
+                gap: 8px;
+            }
+            .prompt-textarea {
+                font-size: 13px;
+                padding: 12px;
+            }
+            .prompt-editor-title {
+                font-size: 14px;
+            }
+
+            /* Router */
+            .router-container {
+                padding: 8px;
+                gap: 8px;
+            }
+            .pattern-input {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+            .tag-input {
+                font-size: 13px;
+                padding: 10px 12px;
+            }
+
+            /* Chat: bigger input for iOS zoom prevention */
+            .chat-input {
+                font-size: 16px;
+            }
+            .chat-msg {
+                max-width: 85%;
+                font-size: 14px;
+            }
+
+            /* Inspector */
+            .inspector-container {
+                padding: 8px;
+            }
+            .turn-header {
+                padding: 12px;
+                gap: 8px;
+            }
+            .turn-info {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .turn-input-preview {
+                max-width: 150px;
+                font-size: 11px;
+            }
+            .turn-body {
+                padding: 10px;
+            }
+            .turn-section-content {
+                font-size: 10px;
+                padding: 8px;
+            }
+
+            /* Event log compact */
+            .event-item {
+                padding: 8px 10px;
+            }
+            .event-type-badge {
+                font-size: 8px;
+                padding: 2px 5px;
+                min-width: 42px;
+            }
+
+            /* Live panels */
+            .live-panel-header {
+                padding: 10px 12px;
+            }
+            .details-body {
+                padding: 10px;
+            }
+            .detail-block-content {
+                font-size: 11px;
+                padding: 8px;
+                max-height: 180px;
             }
         }
     </style>
@@ -2375,7 +2676,7 @@
               </div>
 
               <!-- 3 columns -->
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;width:100%;">
+              <div class="pipeline-routes-grid">
                 ${col('deep',   '🟣 Deep',   ['nlp_analyzer','belief_graph','knowledge_retriever','tactician','front_agent'], ['API #1','קוד','קוד DB','API #2','API #3'])}
                 ${col('medium', '🟡 Medium', ['nlp_analyzer','belief_graph','front_agent'], ['API #1','קוד','API #2'])}
                 ${col('light',  '🟢 Light',  ['front_agent'], ['API #1'])}
