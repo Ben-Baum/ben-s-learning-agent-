@@ -1372,6 +1372,169 @@
             font-size: 14px;
         }
 
+        /* AGENT CHAT TAB */
+        .agentchat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .agentchat-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            border-bottom: 1px solid #1e2329;
+            background: #0d1117;
+            flex-shrink: 0;
+        }
+
+        .agentchat-select-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .agentchat-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .agentchat-select {
+            background: #0a0e13;
+            border: 1px solid #1e2329;
+            border-radius: 6px;
+            color: #00d9ff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            cursor: pointer;
+            min-width: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300d9ff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
+        }
+
+        .agentchat-select:focus {
+            border-color: #00d9ff;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.15);
+        }
+
+        .agentchat-select option {
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+
+        .agentchat-agent-info {
+            font-size: 11px;
+            color: #8b949e;
+            font-family: 'IBM Plex Mono', monospace;
+            text-align: right;
+        }
+
+        .agentchat-activity {
+            border-bottom: 1px solid #1e2329;
+            background: #0a0e13;
+            max-height: 160px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .agentchat-activity-header {
+            padding: 8px 18px;
+            border-bottom: 1px solid #1e2329;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .agentchat-activity-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #d29922;
+            box-shadow: 0 0 6px #d29922;
+        }
+
+        .agentchat-activity-items {
+            padding: 6px 18px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .agentchat-activity-item {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 0;
+        }
+
+        .agentchat-activity-item .act-agent {
+            color: #39d0d8;
+            font-weight: 700;
+            min-width: 90px;
+        }
+
+        .agentchat-activity-item .act-type {
+            color: #d29922;
+            text-transform: uppercase;
+            min-width: 60px;
+        }
+
+        .agentchat-activity-item .act-data {
+            color: #6e7681;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .agentchat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #080c10;
+        }
+
+        .agentchat-messages::-webkit-scrollbar { width: 4px; }
+        .agentchat-messages::-webkit-scrollbar-thumb { background: #1e2329; border-radius: 2px; }
+
+        .agentchat-input-row {
+            padding: 12px 18px;
+            border-top: 1px solid #1e2329;
+            background: #0d1117;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
         /* Pipeline route columns – class used by renderPipeline() JS */
         .pipeline-routes-grid {
             display: grid;
@@ -1761,6 +1924,7 @@
         <!-- Tab Navigation -->
         <div class="tab-nav">
             <button class="tab-button active" data-tab="flow">Flow</button>
+            <button class="tab-button" data-tab="agentchat">Agent Chat</button>
             <button class="tab-button" data-tab="prompts">Prompts</button>
             <button class="tab-button" data-tab="router">Router</button>
             <button class="tab-button" data-tab="inspector">Inspector</button>
@@ -1856,6 +2020,42 @@
                 </div>
             </div>
         </div>
+
+        <!-- AGENT CHAT TAB -->
+        <div class="tab-content" id="agentchat-tab">
+            <div class="agentchat-container">
+                <!-- Agent selector bar -->
+                <div class="agentchat-topbar">
+                    <div class="agentchat-select-group">
+                        <label class="agentchat-label" for="agentSelect">סוכן:</label>
+                        <select id="agentSelect" class="agentchat-select">
+                            <option value="" selected>כל הסוכנים (ברירת מחדל)</option>
+                        </select>
+                    </div>
+                    <div class="agentchat-agent-info" id="agentChatInfo">בחר סוכן כדי לראות פרטים</div>
+                </div>
+
+                <!-- Activity log for selected agent -->
+                <div class="agentchat-activity" id="agentChatActivity">
+                    <div class="agentchat-activity-header">
+                        <span class="agentchat-activity-dot"></span>
+                        <span id="agentActivityLabel">פעילות סוכן</span>
+                    </div>
+                    <div class="agentchat-activity-items" id="agentActivityItems"></div>
+                </div>
+
+                <!-- Chat area -->
+                <div class="agentchat-messages" id="agentChatMessages">
+                    <div class="chat-msg bot">👋 בחר סוכן מהרשימה למעלה ושלח הודעה. תראה בזמן אמת מה הסוכן הנבחר עושה.</div>
+                </div>
+
+                <!-- Input -->
+                <div class="agentchat-input-row">
+                    <input type="text" class="chat-input" id="agentChatInput" placeholder="כתוב הודעה..." dir="auto" />
+                    <button class="chat-send-btn" id="agentChatSendBtn" onclick="sendAgentChatMessage()">▶</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1942,6 +2142,7 @@
             setupEventListeners();
             loadPrompts();
             loadRouterConfig();
+            initAgentChatTab();
             showBanner();  // shown until WS connects
             connectSSE();
         }
@@ -2145,6 +2346,11 @@
 
         function handleSSEMessage(event) {
             const { agent, type, data, status, ts } = event;
+
+            // Feed the agent chat tab
+            if (typeof feedAgentChatEvent === 'function') {
+                feedAgentChatEvent(event);
+            }
 
             // Increment live WS counter
             wsEventTotal++;
@@ -3275,6 +3481,151 @@
                 input.disabled = false;
                 btn.disabled = false;
                 chatWaiting = false;
+                input.focus();
+            });
+        }
+
+        // ============================================================================
+        // AGENT CHAT TAB
+        // ============================================================================
+
+        let agentChatWaiting = false;
+        const agentChatEvents = [];  // SSE events filtered for selected agent
+
+        function initAgentChatTab() {
+            const select = document.getElementById('agentSelect');
+            if (!select) return;
+
+            // Populate dropdown with all agents
+            AGENTS.forEach(agent => {
+                const opt = document.createElement('option');
+                opt.value = agent.name;
+                opt.textContent = `${agent.name.toUpperCase()} — ${agent.role}`;
+                select.appendChild(opt);
+            });
+
+            // On change
+            select.addEventListener('change', () => {
+                const val = select.value;
+                const info = document.getElementById('agentChatInfo');
+                if (val) {
+                    const agentDef = AGENTS.find(a => a.name === val);
+                    info.textContent = agentDef
+                        ? `${agentDef.type.toUpperCase()} · ${agentDef.role}`
+                        : '';
+                } else {
+                    info.textContent = 'מציג אירועים מכל הסוכנים';
+                }
+                renderAgentActivity();
+            });
+
+            // Enter key
+            const input = document.getElementById('agentChatInput');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendAgentChatMessage();
+                    }
+                });
+            }
+        }
+
+        // Called from handleSSEMessage for every event — feed the agent chat activity
+        function feedAgentChatEvent(event) {
+            agentChatEvents.push(event);
+            if (agentChatEvents.length > 100) agentChatEvents.shift();
+            renderAgentActivity();
+        }
+
+        function renderAgentActivity() {
+            const container = document.getElementById('agentActivityItems');
+            const label = document.getElementById('agentActivityLabel');
+            const selectedAgent = document.getElementById('agentSelect')?.value || '';
+            if (!container) return;
+
+            const filtered = selectedAgent
+                ? agentChatEvents.filter(e => e.agent === selectedAgent)
+                : agentChatEvents;
+
+            const recent = filtered.slice(-8).reverse();
+
+            label.textContent = selectedAgent
+                ? `פעילות: ${selectedAgent.toUpperCase()}`
+                : 'פעילות כל הסוכנים';
+
+            if (!recent.length) {
+                container.innerHTML = '<div style="color:#6e7681;font-size:10px;padding:4px 0;">אין פעילות עדיין. שלח הודעה כדי לראות.</div>';
+                return;
+            }
+
+            container.innerHTML = recent.map(ev => {
+                const dataStr = ev.data ? JSON.stringify(ev.data).slice(0, 60) : '';
+                return `<div class="agentchat-activity-item">
+                    <span class="act-agent">${escHtml(ev.agent)}</span>
+                    <span class="act-type">${escHtml(ev.type)}</span>
+                    <span class="act-data">${escHtml(dataStr)}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function appendAgentChatMsg(text, type, extra) {
+            const container = document.getElementById('agentChatMessages');
+            if (!container) return;
+            const div = document.createElement('div');
+            div.className = `chat-msg ${type}`;
+            div.textContent = text;
+            if (extra) {
+                const sub = document.createElement('div');
+                sub.className = 'msg-route';
+                sub.textContent = extra;
+                div.appendChild(sub);
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function sendAgentChatMessage() {
+            if (agentChatWaiting) return;
+            const input = document.getElementById('agentChatInput');
+            const btn = document.getElementById('agentChatSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const selectedAgent = document.getElementById('agentSelect')?.value || '';
+
+            input.value = '';
+            input.disabled = true;
+            btn.disabled = true;
+            agentChatWaiting = true;
+
+            appendAgentChatMsg(text, 'user');
+            const thinkingEl = appendAgentChatMsg('⏳ מעבד...', 'bot thinking');
+
+            fetch(`${API_BASE}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            })
+            .then(r => r.json())
+            .then(data => {
+                thinkingEl.remove();
+                if (data.error) {
+                    appendAgentChatMsg('❌ שגיאה: ' + data.error, 'bot');
+                } else {
+                    const label = selectedAgent ? `🤖 ${selectedAgent.toUpperCase()}` : null;
+                    appendAgentChatMsg(data.reply, 'bot', label);
+                }
+            })
+            .catch(err => {
+                thinkingEl.remove();
+                appendAgentChatMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
+            })
+            .finally(() => {
+                input.disabled = false;
+                btn.disabled = false;
+                agentChatWaiting = false;
                 input.focus();
             });
         }
