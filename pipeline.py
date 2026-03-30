@@ -563,6 +563,7 @@ def _default_user_profile() -> Dict[str, Any]:
         "vocabulary_markers": [],
         "learning_notes": "",
         "message_count": 0,
+        "therapy_phase": "תשאול",
     }
 
 
@@ -775,6 +776,16 @@ def ben_agent_full_turn(
     # ── Step 6: User Style Learning (API call — runs in background conceptually) ──
     t4 = time.perf_counter()
     updated_profile = _analyze_user_style(user_text, conversation_history, user_profile)
+    
+    # ── Therapy Phase Engine: Update tracker based on conversation depth ──
+    mc = updated_profile.get("message_count", 0)
+    if mc < 4:
+        updated_profile["therapy_phase"] = "תשאול"
+    elif mc < 8:
+        updated_profile["therapy_phase"] = "שיקוף"
+    else:
+        updated_profile["therapy_phase"] = "שינוי"
+
     stage_latencies["learning_ms"] = int((time.perf_counter() - t4) * 1000)
 
     # ── Step 7: Front Agent Reply with learned profile ──
