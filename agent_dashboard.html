@@ -1551,6 +1551,252 @@
             width: 100%;
         }
 
+        /* BEN'S AGENT TAB */
+        .benagent-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .benagent-chat-area {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .benagent-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            border-bottom: 1px solid #1e2329;
+            background: #0d1117;
+            flex-shrink: 0;
+        }
+
+        .benagent-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .benagent-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: #e6a4ff;
+            letter-spacing: 0.04em;
+        }
+
+        .benagent-learning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(230, 164, 255, 0.12);
+            border: 1px solid rgba(230, 164, 255, 0.35);
+            font-size: 11px;
+            font-weight: 600;
+            color: #e6a4ff;
+            font-family: 'IBM Plex Mono', monospace;
+            animation: learnPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes learnPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(230, 164, 255, 0.2); }
+            50% { box-shadow: 0 0 12px 2px rgba(230, 164, 255, 0.3); }
+        }
+
+        .benagent-user-id {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: #6e7681;
+            padding: 3px 8px;
+            background: #1e2329;
+            border-radius: 4px;
+        }
+
+        .benagent-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .benagent-reset-btn {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            color: #f85149;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .benagent-reset-btn:hover {
+            background: rgba(248, 81, 73, 0.2);
+            border-color: #f85149;
+        }
+
+        .benagent-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: linear-gradient(160deg, #080c10 0%, #1a0a2e 50%, #0d0a20 100%);
+        }
+
+        .benagent-messages::-webkit-scrollbar { width: 4px; }
+        .benagent-messages::-webkit-scrollbar-thumb { background: #2a1a3e; border-radius: 2px; }
+
+        .benagent-input-row {
+            padding: 12px 18px;
+            border-top: 1px solid #1e2329;
+            background: #0d1117;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .benagent-send-btn {
+            background: rgba(230, 164, 255, 0.15);
+            border: 1px solid rgba(230, 164, 255, 0.4);
+            color: #e6a4ff;
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .benagent-send-btn:hover:not(:disabled) {
+            background: rgba(230, 164, 255, 0.25);
+            border-color: #e6a4ff;
+        }
+
+        .benagent-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Profile Sidebar */
+        .benagent-profile {
+            border-left: 1px solid #1e2329;
+            background: #0a0e13;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .benagent-profile-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1e2329;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #e6a4ff;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .benagent-profile-body {
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex: 1;
+        }
+
+        .benagent-profile-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .benagent-profile-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            color: #6e7681;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .benagent-profile-value {
+            font-size: 12px;
+            color: #c9d1d9;
+            line-height: 1.4;
+        }
+
+        .benagent-profile-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #1e2329;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .benagent-profile-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, #e6a4ff, #a371f7);
+            transition: width 0.6s ease;
+        }
+
+        .benagent-profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .benagent-profile-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(230, 164, 255, 0.1);
+            border: 1px solid rgba(230, 164, 255, 0.25);
+            color: #c9a4e6;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .benagent-msg-count {
+            text-align: center;
+            padding: 12px;
+            border-top: 1px solid #1e2329;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: #6e7681;
+        }
+
+        .benagent-msg-count span {
+            color: #e6a4ff;
+            font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+            .benagent-container {
+                grid-template-columns: 1fr;
+            }
+            .benagent-profile {
+                border-left: none;
+                border-top: 1px solid #1e2329;
+                max-height: 250px;
+                order: -1;
+            }
+        }
+
         /* ===== Responsive ===== */
         @media (max-width: 1400px) {
             .router-container {
@@ -1932,6 +2178,7 @@
         <!-- Tab Navigation -->
         <div class="tab-nav">
             <button class="tab-button active" data-tab="flow">Flow</button>
+            <button class="tab-button" data-tab="benagent">🧠 הסוכן של בן</button>
             <button class="tab-button" data-tab="agentchat">Agent Chat</button>
             <button class="tab-button" data-tab="prompts">Prompts</button>
             <button class="tab-button" data-tab="router">Router</button>
@@ -2029,6 +2276,89 @@
             </div>
         </div>
 
+        <!-- BEN'S AGENT TAB -->
+        <div class="tab-content" id="benagent-tab">
+            <div class="benagent-container">
+                <!-- Chat Area -->
+                <div class="benagent-chat-area">
+                    <div class="benagent-header">
+                        <div class="benagent-header-left">
+                            <div class="benagent-title">🧠 הסוכן של בן</div>
+                            <div class="benagent-learning-badge">
+                                <span>●</span> שלב למידה
+                            </div>
+                            <div class="benagent-user-id" id="benAgentUserId">—</div>
+                        </div>
+                        <div class="benagent-header-right">
+                            <button class="benagent-reset-btn" onclick="clearBenAgentChat()">🧹 ניקוי צ'אט</button>
+                        </div>
+                    </div>
+
+                    <div class="benagent-messages" id="benAgentMessages">
+                        <div class="chat-msg bot">👋 היי! אני הסוכן של בן. אני לאט לאט לומד אותך ואת הסגנון שלך. (💬 לחץ על הראסט לניקוי השיחה בלי לאבד את מה שלמדתי עליך ומה שהעלית)</div>
+                    </div>
+
+                    <div id="benAgentFileChips" style="padding: 0 18px; display: flex; gap: 8px; flex-wrap: wrap; background: #0d1117;"></div>
+
+                    <div class="benagent-input-row">
+                        <label for="benAgentFileInput" style="cursor: pointer; color: #6e7681; font-size: 18px; padding-right: 5px;">📎</label>
+                        <input type="file" id="benAgentFileInput" style="display: none;" accept="image/*,text/*,.pdf" onchange="uploadBenAgentFile(this)" />
+                        
+                        <input type="text" class="chat-input" id="benAgentInput" placeholder="כתוב הודעה..." dir="auto" />
+                        <button class="benagent-send-btn" id="benAgentSendBtn" onclick="sendBenAgentMessage()">▶</button>
+                    </div>
+                </div>
+
+                <!-- Profile Sidebar -->
+                <div class="benagent-profile">
+                    <div class="benagent-profile-header">
+                        <span>📊</span> פרופיל נלמד
+                    </div>
+                    <div class="benagent-profile-body" id="benAgentProfileBody">
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">שפה</div>
+                            <div class="benagent-profile-value" id="bp-language">ממתין לנתונים...</div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">טון</div>
+                            <div class="benagent-profile-value" id="bp-tone">—</div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">סגנון תקשורת</div>
+                            <div class="benagent-profile-value" id="bp-style">—</div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">פתיחות רגשית</div>
+                            <div class="benagent-profile-bar"><div class="benagent-profile-bar-fill" id="bp-openness-bar" style="width:50%"></div></div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">קבלת הומור</div>
+                            <div class="benagent-profile-bar"><div class="benagent-profile-bar-fill" id="bp-humor-bar" style="width:50%"></div></div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">רמת פורמליות</div>
+                            <div class="benagent-profile-bar"><div class="benagent-profile-bar-fill" id="bp-formality-bar" style="width:50%"></div></div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">נושאים חוזרים</div>
+                            <div class="benagent-profile-tags" id="bp-topics"><span class="benagent-profile-tag">אין עדיין</span></div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">מילים אופייניות</div>
+                            <div class="benagent-profile-tags" id="bp-vocab"><span class="benagent-profile-tag">אין עדיין</span></div>
+                        </div>
+                        <div class="benagent-profile-field">
+                            <div class="benagent-profile-label">הערות למידה</div>
+                            <div class="benagent-profile-value" id="bp-notes" style="font-style:italic;color:#8b949e;">—</div>
+                        </div>
+                    </div>
+                    <div class="benagent-msg-count">
+                        הודעות שנותחו: <span id="bp-msg-count">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- AGENT CHAT TAB -->
         <div class="tab-content" id="agentchat-tab">
             <div class="agentchat-container">
@@ -2082,7 +2412,8 @@
 
             const isLocal =
                 window.location.hostname === 'localhost' ||
-                window.location.hostname === '127.0.0.1';
+                window.location.hostname === '127.0.0.1' ||
+                window.location.protocol === 'file:';
 
             return isLocal
                 ? 'http://localhost:8766'
@@ -3643,10 +3974,238 @@
         }
 
         // ============================================================================
+        // BEN'S AGENT TAB
+        // ============================================================================
+
+        let benAgentWaiting = false;
+
+        function getBenAgentUserId() {
+            let uid = localStorage.getItem('ben_agent_user_id');
+            if (!uid) {
+                uid = 'user_' + crypto.randomUUID().split('-')[0];
+                localStorage.setItem('ben_agent_user_id', uid);
+            }
+            return uid;
+        }
+
+        function initBenAgentTab() {
+            const uid = getBenAgentUserId();
+            const uidEl = document.getElementById('benAgentUserId');
+            if (uidEl) uidEl.textContent = 'ID: ' + uid;
+
+            // Enter key
+            const input = document.getElementById('benAgentInput');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendBenAgentMessage();
+                    }
+                });
+            }
+
+            // Load profile if exists
+            loadBenAgentProfile();
+        }
+
+        async function loadBenAgentProfile() {
+            const uid = getBenAgentUserId();
+            try {
+                const r = await fetch(`${API_BASE}/api/ben-agent/profile/${uid}`);
+                const data = await r.json();
+                if (data && data.message_count > 0) {
+                    updateBenAgentProfileUI(data);
+                }
+            } catch(e) {
+                // Profile not loaded yet — that's fine
+            }
+        }
+
+        function updateBenAgentProfileUI(profile) {
+            if (!profile) return;
+
+            const setEl = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val || '—';
+            };
+
+            const langMap = { hebrew: '🇮🇱 עברית', english: '🇺🇸 English', mixed: '🔀 מעורב', unknown: 'ממתין...' };
+            setEl('bp-language', langMap[profile.preferred_language] || profile.preferred_language || '—');
+            setEl('bp-tone', profile.tone || '—');
+            setEl('bp-style', profile.communication_style || '—');
+            setEl('bp-notes', profile.learning_notes || '—');
+            setEl('bp-msg-count', String(profile.message_count || 0));
+
+            // Bars
+            const setBar = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.style.width = Math.round((val || 0.5) * 100) + '%';
+            };
+            setBar('bp-openness-bar', profile.emotional_openness);
+            setBar('bp-humor-bar', profile.humor_receptiveness);
+            setBar('bp-formality-bar', profile.formality_level);
+
+            // Tags
+            const setTags = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (!items || !items.length) {
+                    el.innerHTML = '<span class="benagent-profile-tag">אין עדיין</span>';
+                    return;
+                }
+                el.innerHTML = items.slice(0, 6).map(t =>
+                    `<span class="benagent-profile-tag">${escHtml(t)}</span>`
+                ).join('');
+            };
+            setTags('bp-topics', profile.recurring_topics);
+            setTags('bp-vocab', profile.vocabulary_markers);
+
+            // Update file chips from server if provided
+            if (profile.uploaded_filenames) {
+                const chipsEl = document.getElementById('benAgentFileChips');
+                if (chipsEl) {
+                    chipsEl.innerHTML = profile.uploaded_filenames.map(name => 
+                        `<div style="font-size: 10px; padding: 2px 8px; border-radius: 4px; background: rgba(230, 164, 255, 0.1); border: 1px solid rgba(230, 164, 255, 0.3); color: #e6a4ff;">📄 ${escHtml(name)}</div>`
+                    ).join('');
+                }
+            }
+        }
+
+        function appendBenAgentMsg(text, type, extra) {
+            const container = document.getElementById('benAgentMessages');
+            if (!container) return;
+            const div = document.createElement('div');
+            div.className = `chat-msg ${type}`;
+            div.textContent = text;
+            if (extra) {
+                const sub = document.createElement('div');
+                sub.className = 'msg-route';
+                sub.textContent = extra;
+                div.appendChild(sub);
+            }
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return div;
+        }
+
+        function sendBenAgentMessage() {
+            if (benAgentWaiting) return;
+            const input = document.getElementById('benAgentInput');
+            const btn = document.getElementById('benAgentSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const userId = getBenAgentUserId();
+
+            input.value = '';
+            input.disabled = true;
+            btn.disabled = true;
+            benAgentWaiting = true;
+
+            appendBenAgentMsg(text, 'user');
+            const thinkingEl = appendBenAgentMsg('🧠 לומד ומעבד...', 'bot thinking');
+
+            fetch(`${API_BASE}/api/ben-agent/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, user_id: userId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                thinkingEl.remove();
+                if (data.error) {
+                    appendBenAgentMsg('❌ שגיאה: ' + data.error, 'bot');
+                } else {
+                    appendBenAgentMsg(data.reply, 'bot', '🧠 הסוכן של בן');
+                    // Update profile sidebar
+                    if (data.profile) {
+                        updateBenAgentProfileUI(data.profile);
+                    }
+                }
+            })
+            .catch(err => {
+                thinkingEl.remove();
+                appendBenAgentMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
+            })
+            .finally(() => {
+                input.disabled = false;
+                btn.disabled = false;
+                benAgentWaiting = false;
+                input.focus();
+            });
+        }
+
+        function uploadBenAgentFile(inputEl) {
+            const file = inputEl.files[0];
+            if (!file) return;
+
+            const userId = getBenAgentUserId();
+            const filename = file.name;
+            const mimeType = file.type || 'application/octet-stream';
+
+            const thinkingEl = appendBenAgentMsg(`📎 מנתח קובץ: ${filename}...`, 'bot thinking');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+
+                fetch(`${API_BASE}/api/ben-agent/upload`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        user_id: userId,
+                        filename: filename,
+                        mime_type: mimeType,
+                        data: base64Data
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    thinkingEl.remove();
+                    if (data.error) {
+                        appendBenAgentMsg('❌ שגיאה בהעלאה: ' + data.error, 'bot');
+                    } else {
+                        appendBenAgentMsg(`✅ קובץ "${filename}" נסרק ונשמר בזיכרון הידע ההיקפי שלך.`, 'bot');
+                        loadBenAgentProfile(); // Refresh tags
+                    }
+                })
+                .catch(err => {
+                    thinkingEl.remove();
+                    appendBenAgentMsg(`❌ שגיאת רשת בהעלאת קובץ`, 'bot');
+                });
+            };
+            
+            // Read as data URL to easily get base64
+            reader.readAsDataURL(file);
+            inputEl.value = ''; // Reset file input
+        }
+
+        async function clearBenAgentChat() {
+            const userId = getBenAgentUserId();
+            if (!confirm('לנקות את השיחה? (סגנון הדיבור והקבצים שהעלית לא יימחקו)')) return;
+
+            try {
+                await fetch(`${API_BASE}/api/ben-agent/profile/${userId}`, { method: 'DELETE' });
+            } catch(e) {
+                // ok
+            }
+
+            // Reset UI chat only
+            const msgs = document.getElementById('benAgentMessages');
+            if (msgs) msgs.innerHTML = '<div class="chat-msg bot">🔄 השיחה נוקתה! סגנון הדיבור שלך והקבצים שהעלית עדיין שמורים.</div>';
+            
+            loadBenAgentProfile();
+            showToast('🔄 הצ\'אט נוקה', '#e6a4ff');
+        }
+
+        // ============================================================================
         // START
         // ============================================================================
 
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            initBenAgentTab();
+        });
     </script>
 </body>
 </html>

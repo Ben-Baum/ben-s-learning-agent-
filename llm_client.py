@@ -187,11 +187,28 @@ def call_llm_chat(
     system_prompt: str,
     user_content: str,
     temperature: float = 0.7,
+    image_base64: str = None,
+    mime_type: str = "image/jpeg",
 ) -> str:
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_content},
     ]
+
+    if image_base64:
+        messages.append({
+            "role": "user",
+            "content": [
+                {"type": "text", "text": user_content},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:{mime_type};base64,{image_base64}"
+                    }
+                }
+            ]
+        })
+    else:
+        messages.append({"role": "user", "content": user_content})
 
     def _call(client):
         resp = client.chat.completions.create(
