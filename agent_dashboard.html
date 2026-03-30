@@ -2294,6 +2294,19 @@
                         </div>
                     </div>
 
+                    <!-- Therapy Progress Bar -->
+                    <div class="therapy-progress-container" id="therapyProgressBar">
+                        <div class="therapy-step active-red" id="step-exploration">
+                            <span>🔍 תשעול</span>
+                        </div>
+                        <div class="therapy-step" id="step-reflection">
+                            <span>🗺 שיקוף</span>
+                        </div>
+                        <div class="therapy-step" id="step-change">
+                            <span>💡 שינוי</span>
+                        </div>
+                    </div>
+
                     <div class="benagent-messages" id="benAgentMessages">
                         <div class="chat-msg bot">👋 היי! אני הסוכן של בן. אני לאט לאט לומד אותך ואת הסגנון שלך. (💬 לחץ על הראסט לניקוי השיחה בלי לאבד את מה שלמדתי עליך ומה שהעלית)</div>
                     </div>
@@ -4065,6 +4078,23 @@
                     ).join('');
                 }
             }
+
+            // Therapy Phase Bar
+            const phase = profile.therapy_phase || "תשאול";
+            const steps = [
+                { el: document.getElementById('step-exploration'), class: 'active-red', id: 'תשאול' },
+                { el: document.getElementById('step-reflection'), class: 'active-yellow', id: 'שיקוף' },
+                { el: document.getElementById('step-change'), class: 'active-green', id: 'שינוי' }
+            ];
+            
+            steps.forEach(s => {
+                if (s.el) {
+                    s.el.classList.remove('active-red', 'active-yellow', 'active-green');
+                    if (phase === s.id) {
+                        s.el.classList.add(s.class);
+                    }
+                }
+            });
         }
 
         function appendBenAgentMsg(text, type, extra) {
