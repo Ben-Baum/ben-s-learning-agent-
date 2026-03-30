@@ -15,7 +15,9 @@ if os.path.exists(_env_path):
         for _line in _f:
             if _line.strip() and not _line.startswith("#"):
                 _k, _v = _line.strip().split("=", 1)
-                os.environ[_k] = _v.strip("\"'")
+                _v = _v.strip("\"'")
+                if _k not in os.environ:
+                    os.environ[_k] = _v
 
 # agent_observer auto-starts the HTTP server on import
 from agent_observer import register_chat_handler, register_ben_agent_handler, register_ben_agent_upload_handler

@@ -1,7 +1,15 @@
 {
   "state": {
     "belief_graph_json": {
-      "nodes": {},
+      "nodes": {
+        "emotion_other_0": {
+          "id": "emotion_other_0",
+          "statement": "Feeling: other (0.8)",
+          "level": "self",
+          "valence": "neutral",
+          "strength": 0.8
+        }
+      },
       "edges": [],
       "schema_version": "1.0"
     },
