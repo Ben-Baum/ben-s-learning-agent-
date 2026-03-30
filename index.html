@@ -2396,13 +2396,7 @@
             const params = new URLSearchParams(window.location.search);
             const queryBase = params.get('apiBase');
             if (queryBase) {
-                localStorage.setItem('genie_api_base', queryBase);
                 return queryBase.replace(/\/$/, '');
-            }
-
-            const savedBase = localStorage.getItem('genie_api_base');
-            if (savedBase) {
-                return savedBase.replace(/\/$/, '');
             }
 
             const isLocal =
@@ -2411,7 +2405,7 @@
 
             return isLocal
                 ? 'http://localhost:8766'
-                : 'https://test-agents-0-1.onrender.com';
+                : window.location.origin;
         }
 
         const API_BASE = resolveApiBase();
