@@ -2401,14 +2401,10 @@
             const params = new URLSearchParams(window.location.search);
             const queryBase = params.get('apiBase');
             if (queryBase) {
-                localStorage.setItem('genie_api_base', queryBase);
                 return queryBase.replace(/\/$/, '');
             }
 
-            const savedBase = localStorage.getItem('genie_api_base');
-            if (savedBase) {
-                return savedBase.replace(/\/$/, '');
-            }
+            // Ignored localStorage intentionally so users won't get stuck on old endpoints
 
             const isLocal =
                 window.location.hostname === 'localhost' ||
