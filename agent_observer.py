@@ -32,11 +32,23 @@ _http_thread: Optional[threading.Thread] = None
 
 # ─── Chat bridge ──────────────────────────────────────────────────────────────
 _chat_handler = None   # callable(user_text: str) -> str  (set by run_chat.py)
+_ben_agent_handler = None  # callable(user_text: str, user_id: str) -> dict
+_ben_agent_upload_handler = None
 
 def register_chat_handler(fn):
     """Register a function that processes user messages and returns a reply."""
     global _chat_handler
     _chat_handler = fn
+
+def register_ben_agent_handler(fn):
+    """Register a function for Ben's Agent: fn(user_text, user_id) -> {reply, profile}."""
+    global _ben_agent_handler
+    _ben_agent_handler = fn
+
+def register_ben_agent_upload_handler(fn):
+    """Register a function for Ben's Agent file upload: fn(filename, text, user_id)."""
+    global _ben_agent_upload_handler
+    _ben_agent_upload_handler = fn
 
 
 # ─── SSE Event Bus (replaces WebSocket) ──────────────────────────────────────
@@ -147,6 +159,8 @@ class APIHandler(BaseHTTPRequestHandler):
             self._get_sse_status()
         elif path == "/api/ping":
             self._ping()
+        elif path.startswith("/api/ben-agent/profile"):
+            self._get_ben_agent_profile(path)
         else:
             self.send_error(404)
 
@@ -167,6 +181,17 @@ class APIHandler(BaseHTTPRequestHandler):
             self._save_router_config(data)
         elif path == "/api/chat":
             self._handle_chat(data)
+        elif path == "/api/ben-agent/chat":
+            self._handle_ben_agent_chat(data)
+        elif path == "/api/ben-agent/upload":
+            self._handle_ben_agent_upload(data)
+        else:
+            self.send_error(404)
+
+    def do_DELETE(self):
+        path = urlparse(self.path).path
+        if path.startswith("/api/ben-agent/profile"):
+            self._delete_ben_agent_profile(path)
         else:
             self.send_error(404)
 
@@ -228,6 +253,79 @@ class APIHandler(BaseHTTPRequestHandler):
         try:
             reply = _chat_handler(user_text)
             self._json_response({"reply": reply})
+        except Exception as e:
+            self._json_response({"error": str(e)}, 500)
+
+    # ── Ben's Agent API ──
+    def _handle_ben_agent_chat(self, data):
+        user_text = data.get("message", "").strip()
+        user_id = data.get("user_id", "").strip()
+        if not user_text:
+            self._json_response({"error": "empty message"}, 400)
+            return
+        if not user_id:
+            self._json_response({"error": "missing user_id"}, 400)
+            return
+        if _ben_agent_handler is None:
+            self._json_response({"error": "ben agent not running"}, 503)
+            return
+        try:
+            result = _ben_agent_handler(user_text, user_id)
+            self._json_response(result)
+        except Exception as e:
+            self._json_response({"error": str(e)}, 500)
+
+    def _handle_ben_agent_upload(self, data):
+        """Receives a file context from client (JSON with base64 data)"""
+        user_id = data.get("user_id", "").strip()
+        filename = data.get("filename", "").strip()
+        mime_type = data.get("mime_type", "").strip()
+        file_data = data.get("data", "").strip()
+
+        if not user_id or not filename or not file_data:
+            self._json_response({"error": "missing user_id, filename or data"}, 400)
+            return
+
+        if _ben_agent_upload_handler is None:
+            self._json_response({"error": "ben agent file upload not running"}, 503)
+            return
+
+        try:
+            result = _ben_agent_upload_handler(filename, mime_type, file_data, user_id)
+            self._json_response(result)
+        except Exception as e:
+            self._json_response({"error": str(e)}, 500)
+
+    def _get_ben_agent_profile(self, path):
+        # Extract user_id from path: /api/ben-agent/profile/{user_id}
+        parts = path.rstrip("/").split("/")
+        if len(parts) >= 5:
+            user_id = parts[4]
+        else:
+            self._json_response({"error": "missing user_id in path"}, 400)
+            return
+        if _ben_agent_handler is None:
+            self._json_response({"error": "ben agent not running"}, 503)
+            return
+        # The handler stores profiles — we access via a global dict in server.py
+        from server import _ben_agent_get_profile
+        try:
+            profile = _ben_agent_get_profile(user_id)
+            self._json_response(profile)
+        except Exception as e:
+            self._json_response({"error": str(e)}, 500)
+
+    def _delete_ben_agent_profile(self, path):
+        parts = path.rstrip("/").split("/")
+        if len(parts) >= 5:
+            user_id = parts[4]
+        else:
+            self._json_response({"error": "missing user_id in path"}, 400)
+            return
+        from server import _ben_agent_reset_profile
+        try:
+            _ben_agent_reset_profile(user_id)
+            self._json_response({"status": "reset", "user_id": user_id})
         except Exception as e:
             self._json_response({"error": str(e)}, 500)
 
