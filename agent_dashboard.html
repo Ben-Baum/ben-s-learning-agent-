@@ -2417,7 +2417,7 @@
 
             return isLocal
                 ? 'http://localhost:8766'
-                : 'https://test-agents-0-1.onrender.com';
+                : window.location.origin;
         }
 
         const API_BASE = resolveApiBase();
