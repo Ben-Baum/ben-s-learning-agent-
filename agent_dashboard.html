@@ -3913,7 +3913,6 @@
             if (!text) return;
 
             input.value = '';
-            input.disabled = true;
             btn.disabled = true;
             chatWaiting = true;
 
@@ -3944,7 +3943,6 @@
                 appendChatMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
             })
             .finally(() => {
-                input.disabled = false;
                 btn.disabled = false;
                 chatWaiting = false;
                 input.focus();
@@ -4066,7 +4064,6 @@
             const selectedAgent = document.getElementById('agentSelect')?.value || '';
 
             input.value = '';
-            input.disabled = true;
             btn.disabled = true;
             agentChatWaiting = true;
 
@@ -4093,7 +4090,6 @@
                 appendAgentChatMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
             })
             .finally(() => {
-                input.disabled = false;
                 btn.disabled = false;
                 agentChatWaiting = false;
                 input.focus();
@@ -4242,7 +4238,6 @@
             const userId = getBenAgentUserId();
 
             input.value = '';
-            input.disabled = true;
             btn.disabled = true;
             benAgentWaiting = true;
 
@@ -4272,7 +4267,6 @@
                 appendBenAgentMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
             })
             .finally(() => {
-                input.disabled = false;
                 btn.disabled = false;
                 benAgentWaiting = false;
                 input.focus();
