@@ -88,6 +88,17 @@ _DEEP_SIGNALS = [
     r"what'?s the point",
     r"i (hate|despise) myself",
     r"i('m| am) (losing|lost) (control|it|myself|my mind)",
+
+    # ── Pattern 6: Advice / guidance seeking ──
+    r"מה אתה מציע",
+    r"מה (כדאי|עדיף|אפשר) (לעשות|לומר|להגיד|להגיב)",
+    r"(יש לך|יש לי|תן לי).{0,10}(עצה|טיפ|כלי|שיטה|טכניקה|פתרון|הצעה)",
+    r"(תעזור|עזור|תוכל לעזור).{0,10}לי",
+    r"NLP",
+    r"(nlp|אן.{0,3}אל.{0,3}פי)",
+    r"(איך|כיצד).{0,20}(להתמודד|לשנות|לשפר|לטפל|לפתור|להתנהג|לגשת)",
+
+    # ── Pattern 7: Long emotional narrative (processed in classify_message) ──
 ]
 
 # Compile patterns once at import time
@@ -176,7 +187,7 @@ def classify_message(text: str) -> RouteType:
     # Many emotional words in one message = deep distress, not casual sharing
     emotional_hits = _count_emotional_hits(stripped, words)
 
-    if emotional_hits >= 2 or (len(words) > 15 and emotional_hits >= 1):
+    if emotional_hits >= 2 or (len(words) > 15 and emotional_hits >= 1) or len(words) > 40:
         return "deep"
 
     # ── Default: medium ──
