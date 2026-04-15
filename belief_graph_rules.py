@@ -15,6 +15,7 @@ from models import (
     BeliefItem,
     EmotionItem,
     CognitiveDistortionItem,
+    EmotionalCharge,
 )
 
 
@@ -174,6 +175,28 @@ def compute_belief_graph_delta_rules(
         nlp_result.cognitive_distortions, nlp_result.beliefs
     ))
     edges.extend(_link_emotions_to_beliefs(nlp_result.emotions, nlp_result.beliefs))
+
+    # 8) Emotional charges → nodes (saved regardless of engagement_mode)
+    for charge in nlp_result.emotional_charges:
+        charge_node_id = f"charge_{charge.id}"
+        nodes.append(GraphDeltaNode(
+            id=charge_node_id,
+            statement=f"[מטען] {charge.statement}",
+            level="self",
+            valence="negative",
+            initial_strength=charge.intensity * (1.5 if charge.is_core else 1.0),
+            source_message_id=None,
+        ))
+        # Link core charge to related beliefs
+        if charge.is_core:
+            for b in nlp_result.beliefs:
+                if b.valence in ("negative", "mixed"):
+                    edges.append(GraphDeltaEdge(
+                        from_id=charge_node_id,
+                        to_id=b.id,
+                        relation_type="causes",
+                        weight_delta=charge.intensity * 0.5,
+                    ))
 
     return BeliefGraphDelta(
         schema_version="1.0",

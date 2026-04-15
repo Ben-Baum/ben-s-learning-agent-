@@ -1,6 +1,11 @@
 from typing import List, Literal, Optional, Dict
 from pydantic import BaseModel, field_validator
 
+_VALID_CHARGE_TYPES = {
+    "responsibility", "expectation", "fear", "shame", "guilt",
+    "loyalty", "control", "worth", "other"
+}
+
 _VALID_EMOTION_LABELS = {
     "sadness", "anxiety", "fear", "shame", "guilt", "anger",
     "frustration", "relief", "hope", "confusion", "numbness", "other",
@@ -58,11 +63,29 @@ class BeliefItem(BaseModel):
     confidence: float  # 0.0–1.0
 
 
+class EmotionalCharge(BaseModel):
+    """מטען רגשי — אמונה עם עומס רגשי משמעותי שמנהלת את ההתנהגות."""
+    id: str
+    statement: str          # ניסוח של המטען, למשל "כל האחריות עלי"
+    charge_type: str        # responsibility / expectation / fear / shame / guilt / loyalty / control / worth / other
+    intensity: float        # 0.0–1.0
+    source_snippet: str     # הציטוט שממנו נגזר המטען
+    is_core: bool = False   # האם זה המטען הגדול ביותר בהודעה?
+
+    @field_validator("charge_type", mode="before")
+    @classmethod
+    def normalize_charge_type(cls, v: str) -> str:
+        return v if v in _VALID_CHARGE_TYPES else "other"
+
+
 class MetaInfo(BaseModel):
     language: Literal["he", "en", "mixed", "other"]
     message_length_chars: int
     message_id: Optional[str] = None
     turn_index: Optional[int] = None
+    engagement_mode: Literal["exploring", "venting", "closed", "neutral"] = "neutral"
+    # exploring = רוצה לבדוק ולהבין, venting = מפרק/משחרר בלי לחפש פתרון,
+    # closed = לא פתוח לעומק כרגע, neutral = לא ברור
 
 
 class NLPExtractionResult(BaseModel):
@@ -71,6 +94,7 @@ class NLPExtractionResult(BaseModel):
     emotions: List[EmotionItem]
     cognitive_distortions: List[CognitiveDistortionItem]
     beliefs: List[BeliefItem]
+    emotional_charges: List[EmotionalCharge] = []
     meta: MetaInfo
 
 

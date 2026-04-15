@@ -46,7 +46,11 @@ def _print_debug(state: dict, user_text: str) -> tuple:
     print(f"{'═'*50}")
 
     # Step 0: Smart Router
-    route = classify_message(user_text)
+    route = classify_message(
+        user_text,
+        last_route=state.get("last_route", "light"),
+        recent_routes=state.get("recent_routes", []),
+    )
     emoji = _ROUTE_EMOJI[route]
     label = _ROUTE_LABEL[route]
     print(f"\n[0] 🧭 Smart Router")

@@ -155,28 +155,51 @@ def _count_emotional_hits(text: str, words: list[str]) -> int:
     return hits
 
 
-def classify_message(text: str) -> RouteType:
+def classify_message(
+    text: str,
+    last_route: str = "light",
+    recent_routes: list = None,
+) -> RouteType:
     """
     Classify a user message into a route:
       - light:  small talk, greetings, very short → 1 API call
       - medium: regular sharing, stories, updates → 2 API calls
       - deep:   emotional distress, core beliefs  → 3 API calls
+
+    last_route: the route of the previous turn.
+    recent_routes: list of last N route strings — if 2+ were medium/deep,
+                   the conversation is "emotionally active" and we don't drop to light.
     """
     stripped = text.strip()
 
-    # ── Rule 1: Empty or very short → light ──
+    # ── Derived: is this conversation emotionally sustained? ──
+    # If the last 3 turns had 2+ medium/deep → sustained emotional conversation.
+    sustained = False
+    if recent_routes:
+        heavy = sum(1 for r in recent_routes[-3:] if r in ("medium", "deep"))
+        sustained = heavy >= 2
+
+    def _floor_route(candidate: RouteType) -> RouteType:
+        """Apply momentum floor: sustained conversations don't drop to light."""
+        if candidate == "light" and (last_route in ("deep", "medium") or sustained):
+            return "medium"
+        return candidate
+
+    # ── Rule 1: Empty or very short ──
     if len(stripped) <= 3:
-        return "light"
+        if last_route == "deep":
+            return "medium"
+        return _floor_route("light")
 
     # ── Rule 2: Check light patterns ──
     for pattern in _LIGHT_RE:
         if pattern.match(stripped):
-            return "light"
+            return _floor_route("light")
 
-    # ── Rule 3: Word count heuristic for light ──
+    # ── Rule 3: Word count heuristic ──
     words = stripped.split()
     if len(words) <= 2 and not any(p.search(stripped) for p in _DEEP_RE):
-        return "light"
+        return _floor_route("light")
 
     # ── Rule 4: Check deep signals (pattern-based) ──
     for pattern in _DEEP_RE:
@@ -184,7 +207,6 @@ def classify_message(text: str) -> RouteType:
             return "deep"
 
     # ── Rule 5: Emotional density heuristic ──
-    # Many emotional words in one message = deep distress, not casual sharing
     emotional_hits = _count_emotional_hits(stripped, words)
 
     if emotional_hits >= 2 or (len(words) > 15 and emotional_hits >= 1) or len(words) > 40:

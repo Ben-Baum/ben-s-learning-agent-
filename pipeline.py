@@ -76,12 +76,30 @@ def _emotion_labels(nlp_result: Optional[NLPExtractionResult]) -> List[str]:
     return [e.label for e in nlp_result.emotions if e.intensity >= 0.45]
 
 
+def _extract_recent_questions(conversation_history: List[Dict[str, str]], limit: int = 8) -> List[str]:
+    """Return unique questions asked by the assistant in the last N messages."""
+    import re
+    questions = []
+    seen = set()
+    for msg in conversation_history[-limit:]:
+        if msg.get("role") != "assistant":
+            continue
+        # Split on sentence boundaries and grab anything ending with ?
+        for sentence in re.split(r'(?<=[.!?])\s+', msg["content"]):
+            sentence = sentence.strip()
+            if sentence.endswith("?") and sentence not in seen:
+                seen.add(sentence)
+                questions.append(sentence)
+    return questions[-4:]  # last 4 questions max
+
+
 def _build_front_hint(
     *,
     route: RouteType,
     user_text: str,
     nlp_result: Optional[NLPExtractionResult] = None,
     strategy: Optional[TacticalStrategyResult] = None,
+    conversation_history: Optional[List[Dict[str, str]]] = None,
 ) -> Dict[str, Any]:
     hint = {
         "route": route,
@@ -142,12 +160,18 @@ def _build_front_hint(
     if text_len > 25 and route != "light":
         hint["response_shape"] = "keep it short, don't match the user's length"
 
+    # ── Anti-repetition: tell Front Agent what was already asked ──
+    if conversation_history:
+        recent_questions = _extract_recent_questions(conversation_history)
+        if recent_questions:
+            hint["already_asked"] = recent_questions
+
     return hint
 
 
 def _format_front_hint(hint: Dict[str, Any]) -> str:
     avoid = ", ".join(hint.get("avoid", []))
-    return (
+    base = (
         f"route={hint.get('route')}; "
         f"tone={hint.get('tone')}; "
         f"depth={hint.get('depth')}; "
@@ -158,6 +182,11 @@ def _format_front_hint(hint: Dict[str, Any]) -> str:
         f"warmth={hint.get('warmth')}; "
         f"avoid={avoid}"
     )
+    already_asked = hint.get("already_asked", [])
+    if already_asked:
+        questions_str = " | ".join(already_asked)
+        base += f"; DO_NOT_REPEAT_THESE_QUESTIONS={questions_str}"
+    return base
 
 
 # ─────────────────────────────────────────────────
@@ -346,7 +375,7 @@ def _route_light(
     """Small talk / short messages → Front Agent only."""
     conversation_history = state.get("conversation_history", [])
     conversation_history.append({"role": "user", "content": user_text})
-    front_hint = _build_front_hint(route="light", user_text=user_text)
+    front_hint = _build_front_hint(route="light", user_text=user_text, conversation_history=conversation_history)
     agent_event("front_agent", "message", {"front_hint": front_hint}, status="active")
 
     reply = front_agent_reply(
@@ -356,10 +385,12 @@ def _route_light(
     )
     conversation_history.append({"role": "assistant", "content": reply})
 
+    _recent = (state.get("recent_routes", []) + ["light"])[-10:]
     return reply, {
         **state,
         "conversation_history": conversation_history,
         "last_route": "light",
+        "recent_routes": _recent,
         "last_api_calls": 1,
     }
 
@@ -394,7 +425,7 @@ def _route_medium(
     # API call #2: Front Agent — now receives NLP insights even in medium route
     conversation_history = state.get("conversation_history", [])
     conversation_history.append({"role": "user", "content": user_text})
-    front_hint = _build_front_hint(route="medium", user_text=user_text, nlp_result=nlp)
+    front_hint = _build_front_hint(route="medium", user_text=user_text, nlp_result=nlp, conversation_history=conversation_history)
     agent_event(
         "front_agent",
         "message",
@@ -415,11 +446,13 @@ def _route_medium(
     conversation_history.append({"role": "assistant", "content": reply})
     agent_event("router", "result", {"route": "medium", "latency_ms": stage_latencies}, status="idle")
 
+    _recent = (state.get("recent_routes", []) + ["medium"])[-10:]
     return reply, {
         "belief_graph_json": updated_graph,
         "recent_nlp_results": recent_nlp,
         "conversation_history": conversation_history,
         "last_route": "medium",
+        "recent_routes": _recent,
         "last_api_calls": 2,
         "last_front_hint": front_hint,
         "last_stage_latencies": stage_latencies,
@@ -473,6 +506,7 @@ def _route_deep(
         user_text=user_text,
         nlp_result=nlp,
         strategy=strategy,
+        conversation_history=conversation_history,
     )
     agent_event(
         "front_agent",
@@ -495,11 +529,13 @@ def _route_deep(
     conversation_history.append({"role": "assistant", "content": reply})
     agent_event("router", "result", {"route": "deep", "latency_ms": stage_latencies}, status="idle")
 
+    _recent = (state.get("recent_routes", []) + ["deep"])[-10:]
     return reply, {
         "belief_graph_json": updated_graph,
         "recent_nlp_results": recent_nlp,
         "conversation_history": conversation_history,
         "last_route": "deep",
+        "recent_routes": _recent,
         "last_api_calls": 3,
         "last_front_hint": front_hint,
         "last_stage_latencies": stage_latencies,
@@ -525,7 +561,11 @@ def full_turn(user_text: str, state: Dict[str, Any]) -> Tuple[str, Dict[str, Any
     # Signal turn start to dashboard inspector
     agent_event("router", "turn_start", {"id": turn_id, "input": user_text}, status="active")
 
-    route = classify_message(user_text)
+    route = classify_message(
+        user_text,
+        last_route=state.get("last_route", "light"),
+        recent_routes=state.get("recent_routes", []),
+    )
     agent_event("router", "start", {"task": f"Route: {route}", "role": "router"}, status="active")
     # Signal route decision — dashboard uses this to highlight path
     agent_event("router", "route_decision", {"route": route}, status="idle")
@@ -771,6 +811,7 @@ def ben_agent_full_turn(
         user_text=user_text,
         nlp_result=nlp,
         strategy=strategy,
+        conversation_history=conversation_history,
     )
 
     # ── Step 6: User Style Learning (API call — runs in background conceptually) ──
