@@ -1,0 +1,272 @@
+{
+  "state": {
+    "belief_graph_json": {
+      "nodes": {
+        "emotion_other_0": {
+          "id": "emotion_other_0",
+          "statement": "Feeling: other (0.6)",
+          "level": "self",
+          "valence": "neutral",
+          "strength": 1.0
+        },
+        "avoid_direct_conflict": {
+          "id": "avoid_direct_conflict",
+          "statement": "I should avoid direct confrontation or conflict.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.8
+        },
+        "responsible_for_others_feelings": {
+          "id": "responsible_for_others_feelings",
+          "statement": "I am responsible for managing how others feel, especially in conflict.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.7
+        },
+        "emotion_other_1": {
+          "id": "emotion_other_1",
+          "statement": "Feeling: other (0.8)",
+          "level": "self",
+          "valence": "neutral",
+          "strength": 0.8
+        },
+        "emotion_anxiety_2": {
+          "id": "emotion_anxiety_2",
+          "statement": "Feeling: anxiety (0.7)",
+          "level": "self",
+          "valence": "neutral",
+          "strength": 0.7
+        },
+        "distortion_emotional_reasoning": {
+          "id": "distortion_emotional_reasoning",
+          "statement": "Cognitive distortion: emotional_reasoning — The user equates their feeling of discomfort with the directness itself being in",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.35
+        },
+        "distortion_catastrophizing": {
+          "id": "distortion_catastrophizing",
+          "statement": "Cognitive distortion: catastrophizing — The user's stress response suggests an anticipation of negative outcomes or an o",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.9999999999999999
+        },
+        "charge_avoid_direct_conflict": {
+          "id": "charge_avoid_direct_conflict",
+          "statement": "[מטען] אסור לי להיות מעורב בקונפליקטים ישירים.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 1.2000000000000002
+        },
+        "charge_responsible_for_others_emotions": {
+          "id": "charge_responsible_for_others_emotions",
+          "statement": "[מטען] אני אחראי על איך שאחרים מרגישים או מגיבים.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.7
+        },
+        "prevent_conflict_responsibility": {
+          "id": "prevent_conflict_responsibility",
+          "statement": "אני אחראי למנוע סכסוכים.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.8
+        },
+        "revealing_leads_to_bad_outcomes": {
+          "id": "revealing_leads_to_bad_outcomes",
+          "statement": "חשיפת מידע מובילה לתוצאות רעות.",
+          "level": "world",
+          "valence": "negative",
+          "strength": 0.7
+        },
+        "emotion_fear_0": {
+          "id": "emotion_fear_0",
+          "statement": "Feeling: fear (0.8)",
+          "level": "self",
+          "valence": "neutral",
+          "strength": 1.0
+        },
+        "emotion_anxiety_1": {
+          "id": "emotion_anxiety_1",
+          "statement": "Feeling: anxiety (0.7)",
+          "level": "self",
+          "valence": "neutral",
+          "strength": 1.0
+        },
+        "distortion_labeling": {
+          "id": "distortion_labeling",
+          "statement": "Cognitive distortion: labeling — The user is avoiding being labeled with negative identities ('conflict-causer', ",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.45
+        },
+        "charge_avoid_conflict_role": {
+          "id": "charge_avoid_conflict_role",
+          "statement": "[מטען] אני חייב להימנע מלהיות זה שגורם לסכסוך.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 1.275
+        },
+        "charge_fear_of_being_revealer": {
+          "id": "charge_fear_of_being_revealer",
+          "statement": "[מטען] אני לא רוצה להיות זה שחושף אירועים.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.75
+        },
+        "others_will_blame": {
+          "id": "others_will_blame",
+          "statement": "אחרים יאשימו אותי אם אהיה מעורב.",
+          "level": "others",
+          "valence": "negative",
+          "strength": 0.8
+        },
+        "need_to_protect_from_blame": {
+          "id": "need_to_protect_from_blame",
+          "statement": "אני צריך להגן על עצמי מפני אשמה.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.7
+        },
+        "distortion_other": {
+          "id": "distortion_other",
+          "statement": "Cognitive distortion: other — Perceiving only two extreme options: full involvement leading to blame, or compl",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.3
+        },
+        "charge_fear_of_blame": {
+          "id": "charge_fear_of_blame",
+          "statement": "[מטען] אני חושש שיאשימו אותי.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 1.35
+        },
+        "charge_need_for_safety": {
+          "id": "charge_need_for_safety",
+          "statement": "[מטען] אני חייב להישאר בטוח ולא מעורב כדי לא להיפגע.",
+          "level": "self",
+          "valence": "negative",
+          "strength": 0.7
+        }
+      },
+      "edges": [
+        {
+          "from_id": "avoid_direct_conflict",
+          "to_id": "responsible_for_others_feelings",
+          "relation_type": "supports",
+          "weight": 0.3
+        },
+        {
+          "from_id": "distortion_emotional_reasoning",
+          "to_id": "avoid_direct_conflict",
+          "relation_type": "explains",
+          "weight": 0.27999999999999997
+        },
+        {
+          "from_id": "distortion_emotional_reasoning",
+          "to_id": "responsible_for_others_feelings",
+          "relation_type": "explains",
+          "weight": 0.27999999999999997
+        },
+        {
+          "from_id": "distortion_catastrophizing",
+          "to_id": "avoid_direct_conflict",
+          "relation_type": "causes",
+          "weight": 0.24
+        },
+        {
+          "from_id": "distortion_catastrophizing",
+          "to_id": "responsible_for_others_feelings",
+          "relation_type": "causes",
+          "weight": 0.24
+        },
+        {
+          "from_id": "charge_avoid_direct_conflict",
+          "to_id": "avoid_direct_conflict",
+          "relation_type": "causes",
+          "weight": 0.4
+        },
+        {
+          "from_id": "charge_avoid_direct_conflict",
+          "to_id": "responsible_for_others_feelings",
+          "relation_type": "causes",
+          "weight": 0.4
+        },
+        {
+          "from_id": "distortion_labeling",
+          "to_id": "prevent_conflict_responsibility",
+          "relation_type": "justifies",
+          "weight": 0.36000000000000004
+        },
+        {
+          "from_id": "distortion_labeling",
+          "to_id": "revealing_leads_to_bad_outcomes",
+          "relation_type": "justifies",
+          "weight": 0.36000000000000004
+        },
+        {
+          "from_id": "distortion_catastrophizing",
+          "to_id": "prevent_conflict_responsibility",
+          "relation_type": "causes",
+          "weight": 0.27999999999999997
+        },
+        {
+          "from_id": "distortion_catastrophizing",
+          "to_id": "revealing_leads_to_bad_outcomes",
+          "relation_type": "causes",
+          "weight": 0.27999999999999997
+        },
+        {
+          "from_id": "charge_avoid_conflict_role",
+          "to_id": "prevent_conflict_responsibility",
+          "relation_type": "causes",
+          "weight": 0.425
+        },
+        {
+          "from_id": "charge_avoid_conflict_role",
+          "to_id": "revealing_leads_to_bad_outcomes",
+          "relation_type": "causes",
+          "weight": 0.425
+        },
+        {
+          "from_id": "distortion_catastrophizing",
+          "to_id": "others_will_blame",
+          "relation_type": "causes",
+          "weight": 0.27999999999999997
+        },
+        {
+          "from_id": "distortion_catastrophizing",
+          "to_id": "need_to_protect_from_blame",
+          "relation_type": "causes",
+          "weight": 0.27999999999999997
+        },
+        {
+          "from_id": "distortion_other",
+          "to_id": "others_will_blame",
+          "relation_type": "other",
+          "weight": 0.24
+        },
+        {
+          "from_id": "distortion_other",
+          "to_id": "need_to_protect_from_blame",
+          "relation_type": "other",
+          "weight": 0.24
+        },
+        {
+          "from_id": "charge_fear_of_blame",
+          "to_id": "others_will_blame",
+          "relation_type": "causes",
+          "weight": 0.45
+        },
+        {
+          "from_id": "charge_fear_of_blame",
+          "to_id": "need_to_protect_from_blame",
+          "relation_type": "causes",
+          "weight": 0.45
+        }
+      ],
+      "schema_version": "1.0"
+    },
+    "recent_nlp_results": [
+      
