@@ -2179,7 +2179,6 @@
         <div class="tab-nav">
             <button class="tab-button active" data-tab="flow">Flow</button>
             <button class="tab-button" data-tab="benagent">🧠 הסוכן של בן</button>
-            <button class="tab-button" data-tab="agentchat">Agent Chat</button>
             <button class="tab-button" data-tab="prompts">Prompts</button>
             <button class="tab-button" data-tab="router">Router</button>
             <button class="tab-button" data-tab="inspector">Inspector</button>
@@ -2354,41 +2353,6 @@
             </div>
         </div>
 
-        <!-- AGENT CHAT TAB -->
-        <div class="tab-content" id="agentchat-tab">
-            <div class="agentchat-container">
-                <!-- Agent selector bar -->
-                <div class="agentchat-topbar">
-                    <div class="agentchat-select-group">
-                        <label class="agentchat-label" for="agentSelect">סוכן:</label>
-                        <select id="agentSelect" class="agentchat-select">
-                            <option value="" selected>כל הסוכנים (ברירת מחדל)</option>
-                        </select>
-                    </div>
-                    <div class="agentchat-agent-info" id="agentChatInfo">בחר סוכן כדי לראות פרטים</div>
-                </div>
-
-                <!-- Activity log for selected agent -->
-                <div class="agentchat-activity" id="agentChatActivity">
-                    <div class="agentchat-activity-header">
-                        <span class="agentchat-activity-dot"></span>
-                        <span id="agentActivityLabel">פעילות סוכן</span>
-                    </div>
-                    <div class="agentchat-activity-items" id="agentActivityItems"></div>
-                </div>
-
-                <!-- Chat area -->
-                <div class="agentchat-messages" id="agentChatMessages">
-                    <div class="chat-msg bot">👋 בחר סוכן מהרשימה למעלה ושלח הודעה. תראה בזמן אמת מה הסוכן הנבחר עושה.</div>
-                </div>
-
-                <!-- Input -->
-                <div class="agentchat-input-row">
-                    <input type="text" class="chat-input" id="agentChatInput" placeholder="כתוב הודעה..." dir="auto" />
-                    <button class="chat-send-btn" id="agentChatSendBtn" onclick="sendAgentChatMessage()">▶</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -3784,10 +3748,10 @@
             // Show thinking placeholder
             const thinkingEl = appendChatMsg('⏳ מעבד...', 'bot thinking');
 
-            fetch(`${API_BASE}/api/chat`, {
+            fetch(`${API_BASE}/api/ben-agent/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({ message: text, user_id: getBenAgentUserId() })
             })
             .then(r => r.json())
             .then(data => {
@@ -3795,9 +3759,8 @@
                 if (data.error) {
                     appendChatMsg('❌ שגיאה: ' + data.error, 'bot');
                 } else {
-                    // Get route from last event in the log
-                    const lastRoute = document.getElementById('currentRoute')?.textContent || '';
-                    appendChatMsg(data.reply, 'bot', lastRoute || null);
+                    const re = { light: '🟢', medium: '🟡', deep: '🟣' }[data.route] || '';
+                    appendChatMsg(data.reply, 'bot', data.route ? `${re} ${data.route}` : null);
                 }
             })
             .catch(err => {
@@ -3934,10 +3897,10 @@
             appendAgentChatMsg(text, 'user');
             const thinkingEl = appendAgentChatMsg('⏳ מעבד...', 'bot thinking');
 
-            fetch(`${API_BASE}/api/chat`, {
+            fetch(`${API_BASE}/api/ben-agent/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({ message: text, user_id: getBenAgentUserId() })
             })
             .then(r => r.json())
             .then(data => {
@@ -3945,8 +3908,8 @@
                 if (data.error) {
                     appendAgentChatMsg('❌ שגיאה: ' + data.error, 'bot');
                 } else {
-                    const label = selectedAgent ? `🤖 ${selectedAgent.toUpperCase()}` : null;
-                    appendAgentChatMsg(data.reply, 'bot', label);
+                    const re = { light: '🟢', medium: '🟡', deep: '🟣' }[data.route] || '';
+                    appendAgentChatMsg(data.reply, 'bot', data.route ? `${re} ${data.route}` : null);
                 }
             })
             .catch(err => {

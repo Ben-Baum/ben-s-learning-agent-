@@ -22,10 +22,10 @@ DEBUG = "--debug" in sys.argv
 
 from pipeline import (  # noqa: E402
     full_turn,
+    ben_agent_full_turn,
     run_nlp_extraction,
     compute_belief_graph_update,
     compute_tactical_strategy,
-    front_agent_reply,
     retrieve_knowledge,
 )
 from smart_router import classify_message  # noqa: E402
@@ -63,15 +63,7 @@ def _print_debug(state: dict, user_text: str) -> tuple:
         print(f"\n[1/1] Front Agent (Conversational Alchemist)")
         print(SEP)
         print(f"  ⚡ דילוג על NLP, Belief Graph, RAG, Strategy")
-        conversation_history = state.get("conversation_history", [])
-        conversation_history.append({"role": "user", "content": user_text})
-        reply = front_agent_reply(
-            conversation_history=conversation_history,
-            strategy=None,
-        )
-        conversation_history.append({"role": "assistant", "content": reply})
-        new_state = {**state, "conversation_history": conversation_history,
-                     "last_route": "light", "last_api_calls": 1}
+        reply, new_state, _ = ben_agent_full_turn(user_text, "debug_user", state)
         print(f"\n  📊 סה\"כ: 1 API call")
         print(f"\n{'═'*50}\n")
         return reply, new_state
@@ -145,22 +137,10 @@ def _print_debug(state: dict, user_text: str) -> tuple:
     api_num = 2 if route == "medium" else 3
     print(f"\n[{step}/{total_steps}] Front Agent (Conversational Alchemist)")
     print(SEP)
-    conversation_history = state.get("conversation_history", [])
-    conversation_history.append({"role": "user", "content": user_text})
-    reply = front_agent_reply(
-        conversation_history=conversation_history,
-        strategy=strategy,
-    )
-    conversation_history.append({"role": "assistant", "content": reply})
+    reply, new_state, _ = ben_agent_full_turn(user_text, "debug_user", state)
     print(f"  🔥 API CALL #{api_num}")
 
-    new_state = {
-        "belief_graph_json": updated_graph,
-        "recent_nlp_results": recent_nlp,
-        "conversation_history": conversation_history,
-        "last_route": route,
-        "last_api_calls": api_num,
-    }
+    new_state = {**new_state, "last_api_calls": api_num}
 
     print(f"\n  📊 סה\"כ: {api_num} API calls ({_ROUTE_EMOJI[route]} {route})")
     print(f"\n{'═'*50}\n")

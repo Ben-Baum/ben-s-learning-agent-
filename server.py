@@ -117,6 +117,7 @@ def _api_ben_agent_chat(user_text: str, user_id: str) -> dict:
         "reply": reply,
         "profile": updated_profile,
         "user_id": user_id,
+        "route": new_state.get("last_route", ""),
     }
 
 

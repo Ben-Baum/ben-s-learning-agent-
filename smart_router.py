@@ -101,9 +101,28 @@ _DEEP_SIGNALS = [
     # ── Pattern 7: Long emotional narrative (processed in classify_message) ──
 ]
 
+# ─── Humor / joke signals ───
+# Downgrades medium→light when user is clearly joking.
+# Does NOT soften deep signals — pain + lol = masked distress, not a joke.
+_HUMOR_SIGNALS = [
+    r"😂|🤣|😆|😄|😹",
+    r"\b(lol|lmao|haha|hehe|xd|rofl)\b",
+    r"חה+[\s]*חה+",
+    r"\b(סתם|בצחוק|בדיחה)\b",
+    r"\b(צוחק|צוחקת|מצחיק|מצחיקה)\b",
+    r"😜|😝|🤪|😏|😋",
+    r"\bjk\b",
+    r"\bjust kidding\b",
+]
+
 # Compile patterns once at import time
 _LIGHT_RE = [re.compile(p, re.IGNORECASE | re.UNICODE) for p in _LIGHT_PATTERNS]
 _DEEP_RE = [re.compile(p, re.IGNORECASE | re.UNICODE) for p in _DEEP_SIGNALS]
+_HUMOR_RE = [re.compile(p, re.IGNORECASE | re.UNICODE) for p in _HUMOR_SIGNALS]
+
+
+def _is_humorous(text: str) -> bool:
+    return any(p.search(text) for p in _HUMOR_RE)
 
 
 # ─── Emotional word roots (Hebrew) ───
@@ -202,11 +221,16 @@ def classify_message(
         return _floor_route("light")
 
     # ── Rule 4: Check deep signals (pattern-based) ──
-    for pattern in _DEEP_RE:
-        if pattern.search(stripped):
-            return "deep"
+    has_deep_signal = any(p.search(stripped) for p in _DEEP_RE)
+    if has_deep_signal:
+        return "deep"
 
-    # ── Rule 5: Emotional density heuristic ──
+    # ── Rule 5: Humor softening ──
+    # No deep signals + clear humor → soften to light
+    if _is_humorous(stripped):
+        return _floor_route("light")
+
+    # ── Rule 6: Emotional density heuristic ──
     emotional_hits = _count_emotional_hits(stripped, words)
 
     if emotional_hits >= 2 or (len(words) > 15 and emotional_hits >= 1) or len(words) > 40:

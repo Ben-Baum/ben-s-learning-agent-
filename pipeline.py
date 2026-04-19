@@ -315,38 +315,6 @@ def compute_tactical_strategy(
     return result
 
 
-# ─────────────────────────────────────────────────
-#  Step 5: Front Agent (API call — always)
-# ─────────────────────────────────────────────────
-def front_agent_reply(
-    *,
-    route: RouteType,
-    conversation_history: List[Dict[str, str]],
-    front_hint: Dict[str, Any],
-) -> str:
-    agent_event("front_agent", "thinking", {"content": "Composing response…"}, status="thinking")
-    import json
-    visible_history = _conversation_window(conversation_history)
-    user_content = (
-        "RECENT_CONVERSATION:\n"
-        f"{json.dumps(visible_history, ensure_ascii=False, separators=(',', ':'))}\n\n"
-    )
-    user_content += (
-        "BACKSTAGE_FRONT_HINT:\n"
-        f"{_format_front_hint(front_hint)}\n\n"
-        f"CURRENT_ROUTE: {route}\n\n"
-        "Respond with only the next message to the user. "
-        "Use the hint as vibe guidance only. Do not explain it."
-    )
-
-    reply = call_llm_chat(
-        model=DEEP_MODEL,
-        system_prompt=FRONT_AGENT_SYSTEM_PROMPT,
-        user_content=user_content,
-        temperature=0.7,
-    )
-    agent_event("front_agent", "result", {"output": reply}, status="idle")
-    return reply
 
 
 # ─────────────────────────────────────────────────
@@ -378,10 +346,11 @@ def _route_light(
     front_hint = _build_front_hint(route="light", user_text=user_text, conversation_history=conversation_history)
     agent_event("front_agent", "message", {"front_hint": front_hint}, status="active")
 
-    reply = front_agent_reply(
-        route="light",
+    reply = _ben_agent_reply(
         conversation_history=conversation_history,
         front_hint=front_hint,
+        user_profile=state.get("user_profile", _default_user_profile()),
+        uploaded_files=state.get("uploaded_files", []),
     )
     conversation_history.append({"role": "assistant", "content": reply})
 
@@ -437,10 +406,11 @@ def _route_medium(
     )
 
     t2 = time.perf_counter()
-    reply = front_agent_reply(
-        route="medium",
+    reply = _ben_agent_reply(
         conversation_history=conversation_history,
         front_hint=front_hint,
+        user_profile=state.get("user_profile", _default_user_profile()),
+        uploaded_files=state.get("uploaded_files", []),
     )
     stage_latencies["front_ms"] = int((time.perf_counter() - t2) * 1000)
     conversation_history.append({"role": "assistant", "content": reply})
@@ -520,10 +490,11 @@ def _route_deep(
     )
 
     t4 = time.perf_counter()
-    reply = front_agent_reply(
-        route="deep",
+    reply = _ben_agent_reply(
         conversation_history=conversation_history,
         front_hint=front_hint,
+        user_profile=state.get("user_profile", _default_user_profile()),
+        uploaded_files=state.get("uploaded_files", []),
     )
     stage_latencies["front_ms"] = int((time.perf_counter() - t4) * 1000)
     conversation_history.append({"role": "assistant", "content": reply})
@@ -772,53 +743,69 @@ def ben_agent_full_turn(
     }, status="active")
 
     stage_latencies: Dict[str, int] = {}
+    recent_routes = state.get("recent_routes", [])
 
-    # ── Step 1: NLP Extraction ──
-    t0 = time.perf_counter()
-    nlp = run_nlp_extraction(user_text)
-    stage_latencies["nlp_ms"] = int((time.perf_counter() - t0) * 1000)
-
-    # ── Step 2: Belief Graph (rule-based, no API) ──
-    t1 = time.perf_counter()
-    belief_graph_json = state.get("belief_graph_json", {})
-    updated_graph = compute_belief_graph_update(
-        nlp_result=nlp,
-        current_graph_json=belief_graph_json,
+    # ── Step 0: Route classification (zero API calls) ──
+    route = classify_message(
+        user_text,
+        last_route=state.get("last_route", "light"),
+        recent_routes=recent_routes,
     )
-    stage_latencies["graph_ms"] = int((time.perf_counter() - t1) * 1000)
+    agent_event("router", "start", {"task": f"Route: {route}", "role": "router"}, status="active")
+    agent_event("router", "route_decision", {"route": route}, status="idle")
 
-    # ── Step 3: Knowledge Retrieval (local, no API) ──
-    t2 = time.perf_counter()
-    recent_nlp = state.get("recent_nlp_results", [])
-    recent_nlp = (recent_nlp + [nlp])[-20:]
-    knowledge_context = retrieve_knowledge(user_text, nlp)
-    stage_latencies["rag_ms"] = int((time.perf_counter() - t2) * 1000)
-
-    # ── Step 4: Tactical Strategy (API call) ──
-    t3 = time.perf_counter()
-    strategy = compute_tactical_strategy(
-        updated_belief_graph_json=updated_graph,
-        recent_nlp_results=recent_nlp[-5:],
-        knowledge_context=knowledge_context,
-    )
-    stage_latencies["strategy_ms"] = int((time.perf_counter() - t3) * 1000)
-
-    # ── Step 5: Build Front Hint ──
     conversation_history = state.get("conversation_history", [])
     conversation_history.append({"role": "user", "content": user_text})
-    front_hint = _build_front_hint(
-        route="deep",
-        user_text=user_text,
-        nlp_result=nlp,
-        strategy=strategy,
-        conversation_history=conversation_history,
-    )
+    belief_graph_json = state.get("belief_graph_json", {})
+    recent_nlp = state.get("recent_nlp_results", [])
+    updated_graph = belief_graph_json
+    nlp = None
 
-    # ── Step 6: User Style Learning (API call — runs in background conceptually) ──
-    t4 = time.perf_counter()
-    updated_profile = _analyze_user_style(user_text, conversation_history, user_profile)
-    
-    # ── Therapy Phase Engine: Update tracker based on conversation depth ──
+    # ── LIGHT: Ben Agent only — 1 API call ──
+    if route == "light":
+        front_hint = _build_front_hint(route=route, user_text=user_text, conversation_history=conversation_history)
+        updated_profile = dict(user_profile)
+        updated_profile["message_count"] = updated_profile.get("message_count", 0) + 1
+
+    # ── MEDIUM: NLP + Belief Graph → Ben Agent — 2 API calls ──
+    elif route == "medium":
+        t0 = time.perf_counter()
+        nlp = run_nlp_extraction(user_text)
+        stage_latencies["nlp_ms"] = int((time.perf_counter() - t0) * 1000)
+        t1 = time.perf_counter()
+        updated_graph = compute_belief_graph_update(nlp_result=nlp, current_graph_json=belief_graph_json)
+        stage_latencies["graph_ms"] = int((time.perf_counter() - t1) * 1000)
+        recent_nlp = (recent_nlp + [nlp])[-20:]
+        front_hint = _build_front_hint(route=route, user_text=user_text, nlp_result=nlp, conversation_history=conversation_history)
+        t4 = time.perf_counter()
+        updated_profile = _analyze_user_style(user_text, conversation_history, user_profile)
+        stage_latencies["learning_ms"] = int((time.perf_counter() - t4) * 1000)
+
+    # ── DEEP: Full pipeline — 3 API calls ──
+    else:
+        t0 = time.perf_counter()
+        nlp = run_nlp_extraction(user_text)
+        stage_latencies["nlp_ms"] = int((time.perf_counter() - t0) * 1000)
+        t1 = time.perf_counter()
+        updated_graph = compute_belief_graph_update(nlp_result=nlp, current_graph_json=belief_graph_json)
+        stage_latencies["graph_ms"] = int((time.perf_counter() - t1) * 1000)
+        t2 = time.perf_counter()
+        recent_nlp = (recent_nlp + [nlp])[-20:]
+        knowledge_context = retrieve_knowledge(user_text, nlp)
+        stage_latencies["rag_ms"] = int((time.perf_counter() - t2) * 1000)
+        t3 = time.perf_counter()
+        strategy = compute_tactical_strategy(
+            updated_belief_graph_json=updated_graph,
+            recent_nlp_results=recent_nlp[-5:],
+            knowledge_context=knowledge_context,
+        )
+        stage_latencies["strategy_ms"] = int((time.perf_counter() - t3) * 1000)
+        front_hint = _build_front_hint(route=route, user_text=user_text, nlp_result=nlp, strategy=strategy, conversation_history=conversation_history)
+        t4 = time.perf_counter()
+        updated_profile = _analyze_user_style(user_text, conversation_history, user_profile)
+        stage_latencies["learning_ms"] = int((time.perf_counter() - t4) * 1000)
+
+    # ── Therapy Phase Engine ──
     mc = updated_profile.get("message_count", 0)
     if mc < 4:
         updated_profile["therapy_phase"] = "תשאול"
@@ -827,9 +814,7 @@ def ben_agent_full_turn(
     else:
         updated_profile["therapy_phase"] = "שינוי"
 
-    stage_latencies["learning_ms"] = int((time.perf_counter() - t4) * 1000)
-
-    # ── Step 7: Front Agent Reply with learned profile ──
+    # ── Ben Agent Reply ──
     t5 = time.perf_counter()
     reply = _ben_agent_reply(
         conversation_history=conversation_history,
@@ -840,10 +825,12 @@ def ben_agent_full_turn(
     stage_latencies["front_ms"] = int((time.perf_counter() - t5) * 1000)
     conversation_history.append({"role": "assistant", "content": reply})
 
-    # Signal turn complete
+    updated_recent_routes = (recent_routes + [route])[-10:]
+
     agent_event("ben_agent", "turn_result", {
         "text": reply,
         "user_id": user_id,
+        "route": route,
         "latency_ms": stage_latencies,
         "profile_summary": {
             "language": updated_profile.get("preferred_language"),
@@ -858,6 +845,8 @@ def ben_agent_full_turn(
         "conversation_history": conversation_history,
         "user_profile": updated_profile,
         "last_stage_latencies": stage_latencies,
+        "last_route": route,
+        "recent_routes": updated_recent_routes,
     }
 
     return reply, new_state, updated_profile
