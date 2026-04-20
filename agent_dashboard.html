@@ -403,7 +403,15 @@
         }
 
         .live-node.active {
-            animation: pulse 1.1s ease-in-out infinite;
+            animation: liveNodeActive 1.1s ease-in-out infinite;
+            border-color: var(--node-active-color, #39d0d8) !important;
+            box-shadow: 0 0 0 1px var(--node-active-color, #39d0d8),
+                        0 0 14px var(--node-active-glow, rgba(57,208,216,0.35));
+        }
+
+        @keyframes liveNodeActive {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 1px var(--node-active-color, #39d0d8), 0 0 14px var(--node-active-glow, rgba(57,208,216,0.35)); }
+            50%       { opacity: 0.85; box-shadow: 0 0 0 1px var(--node-active-color, #39d0d8), 0 0 24px var(--node-active-glow, rgba(57,208,216,0.6)); }
         }
 
         .live-node-head {
@@ -462,6 +470,35 @@
             font-size: 18px;
             color: #32404e;
             flex-shrink: 0;
+        }
+
+        .live-node-db {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid #1e2329;
+        }
+
+        .db-pill {
+            font-size: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            padding: 2px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .db-read {
+            color: #388bfd;
+            background: rgba(56, 139, 253, 0.1);
+            border: 1px solid rgba(56, 139, 253, 0.2);
+        }
+
+        .db-write {
+            color: #3fb950;
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid rgba(63, 185, 80, 0.2);
         }
 
         .details-body {
@@ -1372,176 +1409,6 @@
             font-size: 14px;
         }
 
-        /* AGENT CHAT TAB */
-        .agentchat-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            overflow: hidden;
-        }
-
-        .agentchat-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 14px 18px;
-            border-bottom: 1px solid #1e2329;
-            background: #0d1117;
-            flex-shrink: 0;
-        }
-
-        .agentchat-select-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .agentchat-label {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 12px;
-            font-weight: 600;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .agentchat-select {
-            background: #0a0e13;
-            border: 1px solid #1e2329;
-            border-radius: 6px;
-            color: #00d9ff;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 8px 14px;
-            cursor: pointer;
-            min-width: 200px;
-            outline: none;
-            transition: border-color 0.2s;
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300d9ff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 32px;
-        }
-
-        .agentchat-select:focus {
-            border-color: #00d9ff;
-            box-shadow: 0 0 10px rgba(0, 217, 255, 0.15);
-        }
-
-        .agentchat-select option {
-            background: #0d1117;
-            color: #c9d1d9;
-        }
-
-        .agentchat-agent-info {
-            font-size: 11px;
-            color: #8b949e;
-            font-family: 'IBM Plex Mono', monospace;
-            text-align: right;
-        }
-
-        .agentchat-activity {
-            border-bottom: 1px solid #1e2329;
-            background: #0a0e13;
-            max-height: 160px;
-            overflow-y: auto;
-            flex-shrink: 0;
-        }
-
-        .agentchat-activity-header {
-            padding: 8px 18px;
-            border-bottom: 1px solid #1e2329;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .agentchat-activity-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #d29922;
-            box-shadow: 0 0 6px #d29922;
-        }
-
-        .agentchat-activity-items {
-            padding: 6px 18px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .agentchat-activity-item {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 10px;
-            color: #8b949e;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 3px 0;
-        }
-
-        .agentchat-activity-item .act-agent {
-            color: #39d0d8;
-            font-weight: 700;
-            min-width: 90px;
-        }
-
-        .agentchat-activity-item .act-type {
-            color: #d29922;
-            text-transform: uppercase;
-            min-width: 60px;
-        }
-
-        .agentchat-activity-item .act-data {
-            color: #6e7681;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .agentchat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background: #080c10;
-            transition: background 0.4s ease;
-        }
-
-        .agentchat-messages[data-agent-theme="router"] { background: linear-gradient(160deg, #080c10 0%, #0a1738 100%); }
-        .agentchat-messages[data-agent-theme="nlp_analyzer"] { background: linear-gradient(160deg, #080c10 0%, #2a0a2a 100%); }
-        .agentchat-messages[data-agent-theme="belief_graph"] { background: linear-gradient(160deg, #080c10 0%, #052614 100%); }
-        .agentchat-messages[data-agent-theme="knowledge_retriever"] { background: linear-gradient(160deg, #080c10 0%, #2b1f05 100%); }
-        .agentchat-messages[data-agent-theme="tactician"] { background: linear-gradient(160deg, #080c10 0%, #2d0b0b 100%); }
-        .agentchat-messages[data-agent-theme="front_agent"] { background: linear-gradient(160deg, #080c10 0%, #062b2b 100%); }
-
-        .agentchat-messages::-webkit-scrollbar { width: 4px; }
-        .agentchat-messages::-webkit-scrollbar-thumb { background: #1e2329; border-radius: 2px; }
-
-        .agentchat-input-row {
-            padding: 12px 18px;
-            border-top: 1px solid #1e2329;
-            background: #0d1117;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-shrink: 0;
-        }
 
         /* Pipeline route columns – class used by renderPipeline() JS */
         .pipeline-routes-grid {
@@ -2297,7 +2164,6 @@
         <div class="tab-nav">
             <button class="tab-button active" data-tab="flow">Flow</button>
             <button class="tab-button" data-tab="benagent">🧠 הסוכן של בן</button>
-            <button class="tab-button" data-tab="agentchat">Agent Chat</button>
             <button class="tab-button" data-tab="prompts">Prompts</button>
             <button class="tab-button" data-tab="router">Router</button>
             <button class="tab-button" data-tab="inspector">Inspector</button>
@@ -2324,6 +2190,14 @@
                             </div>
                             <div class="details-body" id="nodeDetailsPanel"></div>
                         </div>
+                    </div>
+
+                    <div class="live-panel" style="margin-bottom:18px;">
+                        <div class="live-panel-header">
+                            <div class="live-panel-title">State Snapshot</div>
+                            <div class="live-panel-meta" id="stateSnapMeta">persistent state — updates in real-time</div>
+                        </div>
+                        <div id="stateSnapshot"></div>
                     </div>
 
                     <div class="live-panel" style="margin-bottom:18px;">
@@ -2490,41 +2364,7 @@
             </div>
         </div>
 
-        <!-- AGENT CHAT TAB -->
-        <div class="tab-content" id="agentchat-tab">
-            <div class="agentchat-container">
-                <!-- Agent selector bar -->
-                <div class="agentchat-topbar">
-                    <div class="agentchat-select-group">
-                        <label class="agentchat-label" for="agentSelect">סוכן:</label>
-                        <select id="agentSelect" class="agentchat-select">
-                            <option value="" selected>כל הסוכנים (ברירת מחדל)</option>
-                        </select>
-                    </div>
-                    <div class="agentchat-agent-info" id="agentChatInfo">בחר סוכן כדי לראות פרטים</div>
-                </div>
 
-                <!-- Activity log for selected agent -->
-                <div class="agentchat-activity" id="agentChatActivity">
-                    <div class="agentchat-activity-header">
-                        <span class="agentchat-activity-dot"></span>
-                        <span id="agentActivityLabel">פעילות סוכן</span>
-                    </div>
-                    <div class="agentchat-activity-items" id="agentActivityItems"></div>
-                </div>
-
-                <!-- Chat area -->
-                <div class="agentchat-messages" id="agentChatMessages">
-                    <div class="chat-msg bot">👋 בחר סוכן מהרשימה למעלה ושלח הודעה. תראה בזמן אמת מה הסוכן הנבחר עושה.</div>
-                </div>
-
-                <!-- Input -->
-                <div class="agentchat-input-row">
-                    <input type="text" class="chat-input" id="agentChatInput" placeholder="כתוב הודעה..." dir="auto" />
-                    <button class="chat-send-btn" id="agentChatSendBtn" onclick="sendAgentChatMessage()">▶</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -2570,7 +2410,13 @@
             agentTypes: {},        // Track agent type (llm or code)
             agentLastData: new Map(), // Last payload per agent
             currentTurnId: null,
-            selectedNode: null
+            selectedNode: null,
+            stateSnapshot: {
+                beliefNodes: 0, beliefEdges: 0,
+                historyDepth: 0,
+                profileLanguage: '—', profileTone: '—', profileMessages: 0,
+                ragLastCount: 0,
+            }
         };
 
         // ============================================================================
@@ -2580,10 +2426,11 @@
         const AGENTS = [
             { name: 'router', role: 'Route Selector', type: 'code' },
             { name: 'nlp_analyzer', role: 'NLP Analysis', type: 'llm' },
-            { name: 'belief_graph', role: 'Belief Graph Mapper', type: 'llm' },
+            { name: 'belief_graph', role: 'Belief Graph Mapper', type: 'code' },
             { name: 'knowledge_retriever', role: 'RAG Retrieval', type: 'code' },
             { name: 'tactician', role: 'Strategy Mapper', type: 'llm' },
-            { name: 'front_agent', role: 'Response Generator', type: 'llm' }
+            { name: 'front_agent', role: 'Response Generator', type: 'llm' },
+            { name: 'ben_agent', role: "Ben's Learning Agent", type: 'llm' }
         ];
 
         const PROMPTS = [
@@ -2594,9 +2441,9 @@
         ];
 
         const ROUTE_PATHS = {
-            light: ['router', 'front_agent'],
-            medium: ['router', 'nlp_analyzer', 'belief_graph', 'front_agent'],
-            deep: ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'front_agent']
+            light: ['router', 'front_agent', 'ben_agent'],
+            medium: ['router', 'nlp_analyzer', 'belief_graph', 'front_agent', 'ben_agent'],
+            deep: ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'front_agent', 'ben_agent']
         };
 
         // ============================================================================
@@ -2608,7 +2455,6 @@
             setupEventListeners();
             loadPrompts();
             loadRouterConfig();
-            initAgentChatTab();
             showBanner();  // shown until WS connects
             connectSSE();
         }
@@ -2813,11 +2659,6 @@
         function handleSSEMessage(event) {
             const { agent, type, data, status, ts } = event;
 
-            // Feed the agent chat tab
-            if (typeof feedAgentChatEvent === 'function') {
-                feedAgentChatEvent(event);
-            }
-
             // Increment live WS counter
             wsEventTotal++;
             const counter = document.getElementById('wsEventCount');
@@ -2856,9 +2697,9 @@
             if (type === 'turn_start') {
                 // New turn begins — clear per-agent data display
                 state.agentLastData.clear();
-                state.selectedNode = 'router';
-                // Store router input
-                state.agentLastData.set('router', { input: data?.input || '', _type: 'turn_start' });
+                // Support both router (full_turn) and ben_agent (ben_agent_full_turn) as entry points
+                state.selectedNode = agent;
+                state.agentLastData.set(agent, { input: data?.input || '', _type: 'turn_start' });
                 state.currentTurnId = data?.id || Date.now();
                 state.turns.unshift({
                     id: state.currentTurnId,
@@ -2867,6 +2708,7 @@
                     beliefGraph: null, rag: null,
                     strategy: null, output: '',
                     frontHint: null, latencies: null,
+                    benAgentOutput: null, benProfile: null,
                     events: []
                 });
             } else if (type === 'route_decision') {
@@ -2883,23 +2725,50 @@
                 if (state.turns.length > 0) state.turns[0].nlp = data || {};
             } else if (agent === 'belief_graph' && type === 'done') {
                 if (state.turns.length > 0) state.turns[0].beliefGraph = data || {};
+                if (data?.total_nodes !== undefined) state.stateSnapshot.beliefNodes = data.total_nodes;
+                if (data?.new_edges !== undefined) state.stateSnapshot.beliefEdges = (state.stateSnapshot.beliefEdges || 0) + (data.new_edges || 0);
+                renderStateSnapshot();
             } else if (agent === 'knowledge_retriever' && type === 'done') {
                 if (state.turns.length > 0) state.turns[0].rag = data || {};
+                if (data?.found !== undefined) state.stateSnapshot.ragLastCount = data.found;
+                renderStateSnapshot();
             } else if (agent === 'tactician' && type === 'result') {
                 if (state.turns.length > 0) state.turns[0].strategy = data || {};
             } else if (agent === 'front_agent' && type === 'message') {
                 if (state.turns.length > 0) state.turns[0].frontHint = data?.front_hint || null;
             } else if (agent === 'router' && type === 'result') {
                 if (state.turns.length > 0) state.turns[0].latencies = data?.latency_ms || null;
+            } else if (agent === 'ben_agent' && type === 'result') {
+                // Store the latest ben_agent output (may fire multiple times — last wins)
+                if (state.turns.length > 0 && data?.output) {
+                    state.turns[0].benAgentOutput = data.output;
+                }
+            } else if (agent === 'ben_agent' && type === 'turn_result') {
+                if (state.turns.length > 0) {
+                    state.turns[0].output = data?.text || '';
+                    state.turns[0].latencies = data?.latency_ms || null;
+                    state.turns[0].benProfile = data?.profile_summary || null;
+                }
+                // Update persistent state snapshot from profile summary
+                if (data?.profile_summary) {
+                    const p = data.profile_summary;
+                    if (p.language) state.stateSnapshot.profileLanguage = p.language;
+                    if (p.tone)     state.stateSnapshot.profileTone = p.tone;
+                    if (p.messages !== undefined) state.stateSnapshot.profileMessages = p.messages;
+                }
+                // Update history depth from turn count
+                state.stateSnapshot.historyDepth = state.turns.length;
+                renderStateSnapshot();
+                // Fade route highlight after 3s
+                setTimeout(() => { state.currentRoute = null; renderPipeline(); }, 3000);
             } else if (type === 'turn_result') {
                 if (state.turns.length > 0) {
                     state.turns[0].output = data?.text || '';
+                    if (data?.latency_ms) state.turns[0].latencies = data.latency_ms;
                 }
-                // Fade route highlight after 3s
-                setTimeout(() => {
-                    state.currentRoute = null;
-                    renderPipeline();
-                }, 3000);
+                state.stateSnapshot.historyDepth = state.turns.length;
+                renderStateSnapshot();
+                setTimeout(() => { state.currentRoute = null; renderPipeline(); }, 3000);
             }
 
             if (state.turns.length > 0) {
@@ -2988,6 +2857,33 @@
                     const text = d.text || d.output || '';
                     if (text) rows.push(['💬 תגובה', truncate(text, 65)]);
                     if (d.route) rows.push(['🗺 מסלול', d.route.toUpperCase()]);
+                    // Show front_hint backstage data
+                    if (d.front_hint) {
+                        const h = d.front_hint;
+                        if (h.tone)  rows.push(['🎭 → tone', h.tone]);
+                        if (h.move)  rows.push(['➡️ → move', truncate(h.move, 45)]);
+                        if (h.depth) rows.push(['🔍 → depth', h.depth]);
+                    }
+                    return rows;
+                },
+                ben_agent: d => {
+                    const rows = [];
+                    const text = d.text || d.output || '';
+                    if (text) rows.push(['💬 תגובה', truncate(text, 65)]);
+                    if (d.route) rows.push(['🗺 מסלול', d.route.toUpperCase()]);
+                    // Profile summary (from turn_result)
+                    if (d.profile_summary) {
+                        const p = d.profile_summary;
+                        if (p.language) rows.push(['🌐 שפה', p.language]);
+                        if (p.tone)     rows.push(['🎭 טון', p.tone]);
+                        if (p.messages !== undefined) rows.push(['📊 הודעות', p.messages]);
+                    }
+                    // Learning update (from result)
+                    if (d.learning_update) {
+                        const l = d.learning_update;
+                        if (l.style)  rows.push(['✏️ סגנון', l.style]);
+                        if (l.messages !== undefined) rows.push(['📊 msg#', l.messages]);
+                    }
                     return rows;
                 },
             };
@@ -3062,12 +2958,55 @@
                     turn.latencies?.front_ms ? `${turn.latencies.front_ms}ms` : null,
                 ].filter(Boolean);
             }
+            if (agentName === 'ben_agent') {
+                return [
+                    turn.benProfile?.tone ? `tone:${turn.benProfile.tone}` : null,
+                    turn.benProfile?.language ? `lang:${turn.benProfile.language}` : null,
+                    turn.latencies?.front_ms ? `${turn.latencies.front_ms}ms` : null,
+                ].filter(Boolean);
+            }
             return [];
         }
 
         function selectNode(agentName) {
             state.selectedNode = agentName;
             renderPipeline();
+        }
+
+        function dbPillsFor(agentName, turn) {
+            const map = {
+                nlp_analyzer: () => `<span class="db-pill db-read">📖 knowledge_core.md</span>`,
+                belief_graph: () => `<span class="db-pill db-read">📖 belief_graph</span>` +
+                    (turn?.beliefGraph?.new_nodes !== undefined ? `<span class="db-pill db-write">📝 +${turn.beliefGraph.new_nodes} nodes</span>` : ''),
+                knowledge_retriever: () => `<span class="db-pill db-read">📖 knowledge.db` +
+                    (turn?.rag?.found !== undefined ? ` (${turn.rag.found})` : '') + `</span>`,
+                tactician: () => `<span class="db-pill db-read">📖 recent_nlp + belief_graph</span>`,
+                ben_agent: () => `<span class="db-pill db-read">📖 conv_history</span>` +
+                    `<span class="db-pill db-write">📝 user_profile</span>`,
+            };
+            const fn = map[agentName];
+            return fn ? fn() : '';
+        }
+
+        function renderStateSnapshot() {
+            const panel = document.getElementById('stateSnapshot');
+            if (!panel) return;
+            const s = state.stateSnapshot;
+            const cards = [
+                { icon: '🧠', label: 'Belief Graph', val1: `${s.beliefNodes} nodes`, val2: `${s.beliefEdges} edges`, color: '#a371f7' },
+                { icon: '👤', label: 'User Profile', val1: s.profileLanguage !== '—' ? `lang: ${s.profileLanguage}` : '—', val2: s.profileTone !== '—' ? `tone: ${s.profileTone}` : `msg #${s.profileMessages}`, color: '#39d0d8' },
+                { icon: '📚', label: 'Knowledge DB', val1: s.ragLastCount ? `${s.ragLastCount} chunks` : 'static', val2: 'FTS5 SQLite', color: '#d29922' },
+                { icon: '💬', label: 'History', val1: `${s.historyDepth} turns`, val2: 'in memory', color: '#3fb950' },
+            ];
+            panel.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:12px 14px;">` +
+                cards.map(c => `
+                    <div style="background:#0a0e13;border:1px solid ${c.color}33;border-radius:8px;padding:10px;text-align:center;">
+                        <div style="font-size:16px;margin-bottom:3px;">${c.icon}</div>
+                        <div style="font-size:9px;font-family:'IBM Plex Mono',monospace;color:#8b949e;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;">${c.label}</div>
+                        <div style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:${c.color};font-weight:700;">${c.val1}</div>
+                        <div style="font-size:10px;color:#58697a;margin-top:2px;">${c.val2}</div>
+                    </div>
+                `).join('') + '</div>';
         }
 
         function renderExecutionMap() {
@@ -3085,9 +3024,9 @@
             meta.textContent = `Turn #${state.turns.length} · ${turn.route ? turn.route.toUpperCase() : 'ROUTING'} · ${truncate(turn.input, 60)}`;
 
             const lanes = [
-                ['light', '🟢 LIGHT', ['router', 'front_agent']],
-                ['medium', '🟡 MEDIUM', ['router', 'nlp_analyzer', 'belief_graph', 'front_agent']],
-                ['deep', '🟣 DEEP', ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'front_agent']],
+                ['light', '🟢 LIGHT', ['router', 'ben_agent']],
+                ['medium', '🟡 MEDIUM', ['router', 'nlp_analyzer', 'belief_graph', 'ben_agent']],
+                ['deep', '🟣 DEEP', ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'ben_agent']],
             ];
 
             container.innerHTML = lanes.map(([routeName, label, nodes]) => {
@@ -3103,6 +3042,7 @@
                                 const metaPills = nodeMetaFor(name, turn)
                                     .map(value => `<span class="live-node-pill">${escHtml(value)}</span>`)
                                     .join('');
+                                const dbPills = dbPillsFor(name, turn);
                                 return `
                                     <div class="live-node ${state.selectedNode === name ? 'selected' : ''} ${nodeState === 'active' ? 'active' : ''}" onclick="selectNode('${name}')">
                                         <div class="live-node-head">
@@ -3111,6 +3051,7 @@
                                         </div>
                                         <div class="live-node-role">${escHtml(agentDef?.role || name)}</div>
                                         <div class="live-node-meta">${metaPills || '<span class="live-node-pill">waiting</span>'}</div>
+                                        ${dbPills ? `<div class="live-node-db">${dbPills}</div>` : ''}
                                     </div>
                                     ${idx < nodes.length - 1 ? '<div class="live-arrow">→</div>' : ''}
                                 `;
@@ -3142,6 +3083,7 @@
                 knowledge_retriever: 'rag_ms',
                 tactician: 'strategy_ms',
                 front_agent: 'front_ms',
+                ben_agent: 'front_ms',
             }[agentName];
             const latencyValue = latencyKey ? turn.latencies?.[latencyKey] : null;
             meta.textContent = `${agentName}${latencyValue ? ` · ${latencyValue}ms` : ''}`;
@@ -3153,9 +3095,60 @@
                 knowledge_retriever: turn.rag,
                 tactician: turn.strategy,
                 front_agent: { front_hint: turn.frontHint, output: turn.output },
+                ben_agent: { output: turn.output || turn.benAgentOutput, profile_summary: turn.benProfile },
             }[agentName] || {};
 
+            const ioMap = {
+                router: {
+                    received: `"${escHtml(truncate(turn.input, 80))}"`,
+                    sent: turn.route ? `route → <strong>${escHtml(turn.route.toUpperCase())}</strong>` : '—'
+                },
+                nlp_analyzer: {
+                    received: `הודעת משתמש (${turn.input?.length || 0} תווים)`,
+                    sent: turn.nlp
+                        ? `${(turn.nlp.emotions||[]).length} רגשות · ${(turn.nlp.cognitive_distortions||[]).length} עיוותים`
+                        : '—'
+                },
+                belief_graph: {
+                    received: `NLP output + conversation history`,
+                    sent: turn.beliefGraph
+                        ? `+${turn.beliefGraph.new_nodes||0} nodes, ${turn.beliefGraph.themes?.length||0} themes`
+                        : '—'
+                },
+                knowledge_retriever: {
+                    received: `שאילתה + NLP keywords`,
+                    sent: turn.rag ? `${turn.rag.found||0} קטעים רלוונטיים` : '—'
+                },
+                tactician: {
+                    received: `belief graph + RAG context`,
+                    sent: turn.strategy
+                        ? `${(turn.strategy.investigation_vectors||[]).length} vectors`
+                        : '—'
+                },
+                front_agent: {
+                    received: `front_hint מה-tactician`,
+                    sent: turn.output ? `"${escHtml(truncate(turn.output, 80))}"` : '—'
+                },
+                ben_agent: {
+                    received: `conversation history + front_hint + user profile`,
+                    sent: (turn.output || turn.benAgentOutput)
+                        ? `"${escHtml(truncate(turn.output || turn.benAgentOutput, 80))}"`
+                        : '—'
+                },
+            };
+            const io = ioMap[agentName] || null;
+
             panel.innerHTML = `
+                ${io ? `
+                <div class="detail-block" style="border-left:3px solid #388bfd;">
+                    <div class="detail-block-title" style="color:#388bfd;">📥 קיבל</div>
+                    <div class="detail-block-content" style="font-size:12px;line-height:1.6;">${io.received}</div>
+                </div>
+                <div class="detail-block" style="border-left:3px solid #3fb950;">
+                    <div class="detail-block-title" style="color:#3fb950;">📤 שלח</div>
+                    <div class="detail-block-content" style="font-size:12px;line-height:1.6;">${io.sent}</div>
+                </div>
+                ` : ''}
                 <div class="detail-block">
                     <div class="detail-block-title">Latest Payload On Card</div>
                     <div class="detail-block-content"><pre>${prettyJson(agentPayload)}</pre></div>
@@ -3164,8 +3157,8 @@
                     <div class="detail-block-title">Semantic Output</div>
                     <div class="detail-block-content"><pre>${prettyJson(semanticData)}</pre></div>
                 </div>
-                <div class="detail-block">
-                    <div class="detail-block-title">Recent Events</div>
+                <div class="detail-block" style="border-left:3px solid #30363d;">
+                    <div class="detail-block-title">אירועים אחרונים</div>
                     <div class="detail-block-content">
                         ${events.length ? events.map(ev => `
                             <div style="margin-bottom:12px;">
@@ -3305,6 +3298,7 @@
             renderExecutionMap();
             renderNodeDetails();
             renderTurnTimeline();
+            renderStateSnapshot();
 
             // Top: user message node
             const routeLabel = state.currentRoute
@@ -3949,152 +3943,7 @@
             });
         }
 
-        // ============================================================================
-        // AGENT CHAT TAB
-        // ============================================================================
 
-        let agentChatWaiting = false;
-        const agentChatEvents = [];  // SSE events filtered for selected agent
-
-        function initAgentChatTab() {
-            const select = document.getElementById('agentSelect');
-            if (!select) return;
-
-            // Populate dropdown with all agents
-            AGENTS.forEach(agent => {
-                const opt = document.createElement('option');
-                opt.value = agent.name;
-                opt.textContent = `${agent.name.toUpperCase()} — ${agent.role}`;
-                select.appendChild(opt);
-            });
-
-            // On change
-            select.addEventListener('change', () => {
-                const val = select.value;
-                const info = document.getElementById('agentChatInfo');
-                const messagesContainer = document.getElementById('agentChatMessages');
-                
-                if (val) {
-                    messagesContainer.setAttribute('data-agent-theme', val);
-                    const agentDef = AGENTS.find(a => a.name === val);
-                    info.textContent = agentDef
-                        ? `${agentDef.type.toUpperCase()} · ${agentDef.role}`
-                        : '';
-                } else {
-                    messagesContainer.removeAttribute('data-agent-theme');
-                    info.textContent = 'מציג אירועים מכל הסוכנים';
-                }
-                renderAgentActivity();
-            });
-
-            // Enter key
-            const input = document.getElementById('agentChatInput');
-            if (input) {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendAgentChatMessage();
-                    }
-                });
-            }
-        }
-
-        // Called from handleSSEMessage for every event — feed the agent chat activity
-        function feedAgentChatEvent(event) {
-            agentChatEvents.push(event);
-            if (agentChatEvents.length > 100) agentChatEvents.shift();
-            renderAgentActivity();
-        }
-
-        function renderAgentActivity() {
-            const container = document.getElementById('agentActivityItems');
-            const label = document.getElementById('agentActivityLabel');
-            const selectedAgent = document.getElementById('agentSelect')?.value || '';
-            if (!container) return;
-
-            const filtered = selectedAgent
-                ? agentChatEvents.filter(e => e.agent === selectedAgent)
-                : agentChatEvents;
-
-            const recent = filtered.slice(-8).reverse();
-
-            label.textContent = selectedAgent
-                ? `פעילות: ${selectedAgent.toUpperCase()}`
-                : 'פעילות כל הסוכנים';
-
-            if (!recent.length) {
-                container.innerHTML = '<div style="color:#6e7681;font-size:10px;padding:4px 0;">אין פעילות עדיין. שלח הודעה כדי לראות.</div>';
-                return;
-            }
-
-            container.innerHTML = recent.map(ev => {
-                const dataStr = ev.data ? JSON.stringify(ev.data).slice(0, 60) : '';
-                return `<div class="agentchat-activity-item">
-                    <span class="act-agent">${escHtml(ev.agent)}</span>
-                    <span class="act-type">${escHtml(ev.type)}</span>
-                    <span class="act-data">${escHtml(dataStr)}</span>
-                </div>`;
-            }).join('');
-        }
-
-        function appendAgentChatMsg(text, type, extra) {
-            const container = document.getElementById('agentChatMessages');
-            if (!container) return;
-            const div = document.createElement('div');
-            div.className = `chat-msg ${type}`;
-            div.textContent = text;
-            if (extra) {
-                const sub = document.createElement('div');
-                sub.className = 'msg-route';
-                sub.textContent = extra;
-                div.appendChild(sub);
-            }
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            return div;
-        }
-
-        function sendAgentChatMessage() {
-            if (agentChatWaiting) return;
-            const input = document.getElementById('agentChatInput');
-            const btn = document.getElementById('agentChatSendBtn');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const selectedAgent = document.getElementById('agentSelect')?.value || '';
-
-            input.value = '';
-            btn.disabled = true;
-            agentChatWaiting = true;
-
-            appendAgentChatMsg(text, 'user');
-            const thinkingEl = appendAgentChatMsg('⏳ מעבד...', 'bot thinking');
-
-            fetch(`${API_BASE}/api/chat`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
-            })
-            .then(r => r.json())
-            .then(data => {
-                thinkingEl.remove();
-                if (data.error) {
-                    appendAgentChatMsg('❌ שגיאה: ' + data.error, 'bot');
-                } else {
-                    const label = selectedAgent ? `🤖 ${selectedAgent.toUpperCase()}` : null;
-                    appendAgentChatMsg(data.reply, 'bot', label);
-                }
-            })
-            .catch(err => {
-                thinkingEl.remove();
-                appendAgentChatMsg(`❌ אין חיבור לשרת — backend: ${API_BASE}`, 'bot');
-            })
-            .finally(() => {
-                btn.disabled = false;
-                agentChatWaiting = false;
-                input.focus();
-            });
-        }
 
         // ============================================================================
         // BEN'S AGENT TAB

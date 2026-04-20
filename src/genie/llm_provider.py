@@ -42,15 +42,10 @@ class OpenAIProvider(LLMProvider):
 
 
 class GeminiProvider(LLMProvider):
-    """Gemini adapter stub. For MVP use OpenAI; document Gemini integration here.
+    """Gemini provider via LiteLLM (used by CrewAI). Requires GOOGLE_API_KEY env var."""
 
-    To implement: use google-generativeai SDK, map to CrewAI LLM wrapper,
-    or implement a custom CrewAI LLM that calls Gemini API. Non-trivial
-    due to different request/response shapes.
-    """
-
-    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-pro") -> None:
-        self._api_key = api_key or os.environ.get("GEMINI_API_KEY", "")
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini/gemini-2.5-flash") -> None:
+        self._api_key = api_key or os.environ.get("GOOGLE_API_KEY", "")
         self._model = model
 
     def get_model_name(self) -> str:

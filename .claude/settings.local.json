@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull *)",
+      "mcp__plugin_claude-mem_mcp-search__smart_search",
+      "mcp__plugin_claude-mem_mcp-search__smart_unfold",
+      "Bash(sqlite3 /Users/galzituni/Desktop/ben-s-learning-agent/knowledge/knowledge.db \".schema\")"
+    ]
+  }
+}

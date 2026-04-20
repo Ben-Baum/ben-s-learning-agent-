@@ -353,8 +353,10 @@ class APIHandler(BaseHTTPRequestHandler):
                 (2.3,  "knowledge_retriever","done",          {"found": 3, "keywords": ["sadness", "catastrophizing", "self-worth"], "context_preview": "CBT techniques for addressing negative core beliefs..."}, "idle"),
                 (2.5,  "tactician",          "thinking",      {"content": "Building strategy..."}, "thinking"),
                 (3.0,  "tactician",          "result",        {"resistance": False, "vectors": [{"id": "v1", "priority": "high", "focus": "cognitive_restructuring", "description": "Challenge catastrophizing pattern", "angle": "gentle Socratic questioning"}]}, "idle"),
-                (3.2,  "front_agent",        "thinking",      {"content": "Composing response..."}, "thinking"),
-                (3.7,  "front_agent",        "turn_result",   {"text": "✅ SSE is working! Events are flowing correctly through the entire pipeline.", "route": "deep"}, "idle"),
+                (3.15, "front_agent",        "message",       {"front_hint": {"tone": "warm", "move": "stay close, then add a small angle", "depth": "deeper", "route": "deep"}}, "active"),
+                (3.3,  "ben_agent",          "thinking",      {"content": "Composing personalized response..."}, "thinking"),
+                (3.8,  "ben_agent",          "result",        {"output": "✅ SSE is working! Events are flowing correctly."}, "idle"),
+                (3.85, "front_agent",        "turn_result",   {"text": "✅ SSE is working! Events are flowing correctly through the entire pipeline.", "route": "deep"}, "idle"),
             ]
             start = time.time()
             for delay, agent, etype, data, status in steps:
@@ -473,12 +475,12 @@ class APIHandler(BaseHTTPRequestHandler):
                 {"id": "belief_graph", "role": "Belief Graph", "type": "code", "description": "עדכון גרף אמונות (rule-based)", "prompt_key": "SYSTEM_PROMPT_BELIEF_GRAPH_MAPPER"},
                 {"id": "knowledge_retriever", "role": "Knowledge Retriever", "type": "code", "description": "חיפוש RAG ב-SQLite", "prompt_key": None},
                 {"id": "tactician", "role": "Tactical Strategist", "type": "llm", "description": "יצירת כיוון פנימי עדין לשיחה", "prompt_key": "SYSTEM_PROMPT_TACTICAL_STRATEGIST"},
-                {"id": "front_agent", "role": "Front Agent", "type": "llm", "description": "תגובה סופית למשתמש בעברית לפי front hint קצר", "prompt_key": "FRONT_AGENT_SYSTEM_PROMPT"},
+                {"id": "ben_agent", "role": "Ben's Learning Agent", "type": "llm", "description": "תגובה סופית למשתמש לפי front hint + profile + היסטוריה", "prompt_key": "BEN_AGENT_SYSTEM_PROMPT"},
             ],
             "routes": {
-                "light": {"agents": ["router", "front_agent"], "api_calls": 1},
-                "medium": {"agents": ["router", "nlp_analyzer", "belief_graph", "front_agent"], "api_calls": 2},
-                "deep": {"agents": ["router", "nlp_analyzer", "belief_graph", "knowledge_retriever", "tactician", "front_agent"], "api_calls": 3},
+                "light": {"agents": ["router", "ben_agent"], "api_calls": 1},
+                "medium": {"agents": ["router", "nlp_analyzer", "belief_graph", "ben_agent"], "api_calls": 2},
+                "deep": {"agents": ["router", "nlp_analyzer", "belief_graph", "knowledge_retriever", "tactician", "ben_agent"], "api_calls": 3},
             },
             "model": "gemini-2.5-flash",
             "provider": "Google Gemini via OpenAI-compatible endpoint",
