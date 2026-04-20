@@ -263,6 +263,7 @@ class APIHandler(BaseHTTPRequestHandler):
     # ── Chat API ──
     def _handle_chat(self, data):
         user_text = data.get("message", "").strip()
+        user_id = data.get("user_id", "").strip() or data.get("session_id", "").strip()
         if not user_text:
             self._json_response({"error": "empty message"}, 400)
             return
@@ -270,8 +271,11 @@ class APIHandler(BaseHTTPRequestHandler):
             self._json_response({"error": "pipeline not running"}, 503)
             return
         try:
-            reply = _chat_handler(user_text)
-            self._json_response({"reply": reply})
+            result = _chat_handler(user_text, user_id)
+            if isinstance(result, dict):
+                self._json_response(result)
+            else:
+                self._json_response({"reply": result})
         except Exception as e:
             self._json_response({"error": str(e)}, 500)
 

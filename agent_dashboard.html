@@ -3856,6 +3856,7 @@
             const btn = document.getElementById('chatSendBtn');
             const text = input.value.trim();
             if (!text) return;
+            const userId = getBenAgentUserId();
 
             input.value = '';
             btn.disabled = true;
@@ -3870,7 +3871,7 @@
             fetch(`${API_BASE}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({ message: text, user_id: userId })
             })
             .then(r => r.json())
             .then(data => {
@@ -3878,9 +3879,10 @@
                 if (data.error) {
                     appendChatMsg('❌ שגיאה: ' + data.error, 'bot');
                 } else {
-                    // Get route from last event in the log
-                    const lastRoute = document.getElementById('currentRoute')?.textContent || '';
-                    appendChatMsg(data.reply, 'bot', lastRoute || null);
+                    appendChatMsg(data.reply, 'bot', data.route || "Ben's Agent");
+                    if (data.profile) {
+                        updateBenAgentProfileUI(data.profile);
+                    }
                 }
             })
             .catch(err => {

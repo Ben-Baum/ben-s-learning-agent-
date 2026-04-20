@@ -269,7 +269,10 @@ def compute_tactical_strategy(
     agent_event("tactician", "thinking", {"content": "Analyzing belief graph + knowledge…"}, status="thinking")
     payload = {
         "updated_belief_graph": updated_belief_graph_json,
-        "recent_nlp_results": [r.model_dump() for r in (recent_nlp_results or [])],
+        "recent_nlp_results": [
+            r.model_dump() if hasattr(r, "model_dump") else r
+            for r in (recent_nlp_results or [])
+        ],
     }
     user_content = _json_dumps(payload)
     knowledge_core = _load_knowledge_core()
@@ -850,4 +853,3 @@ def ben_agent_full_turn(
     }
 
     return reply, new_state, updated_profile
-

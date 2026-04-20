@@ -40,15 +40,42 @@ def _load_user(user_id: str) -> dict:
                 return json.load(f)
         except Exception as e:
             print(f"Error loading userdata for {user_id}: {e}")
+            try:
+                corrupt_path = f"{path}.corrupt.{int(time.time())}"
+                os.replace(path, corrupt_path)
+                print(f"Moved corrupt userdata to {corrupt_path}")
+            except Exception as move_err:
+                print(f"Could not move corrupt userdata for {user_id}: {move_err}")
     return {"state": {}, "profile": {}, "uploaded_files": []}
+
+
+def _json_safe(value):
+    """Convert runtime/Pydantic objects to plain JSON-safe data."""
+    if hasattr(value, "model_dump"):
+        return _json_safe(value.model_dump())
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple, set)):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
+
 
 def _save_user(user_id: str, data: dict):
     path = _get_user_file(user_id)
+    tmp_path = f"{path}.tmp"
     try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(_json_safe(data), f, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, path)
     except Exception as e:
         print(f"Error saving userdata for {user_id}: {e}")
+        try:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+        except Exception:
+            pass
 
 # ── Try to load the pipeline — capture any errors instead of crashing ──
 _pipeline_error = None
@@ -70,18 +97,29 @@ _sessions = {}
 _ben_agent_sessions = {}
 
 
-def _api_chat(user_text: str, session_id: str = None) -> str:
-    global _sessions
+def _public_error_message(exc: Exception | str) -> str:
+    """Return a safe, user-facing error without leaking provider internals."""
+    text = str(exc)
+    lower = text.lower()
+    if (
+        "reported as leaked" in lower
+        or "permission_denied" in lower
+        or ("error code: 403" in lower and "api key" in lower)
+    ):
+        return (
+            "שגיאת חיבור למודל: מפתח Google API חסום כי דווח שדלף. "
+            "צריך להחליף GOOGLE_API_KEY בקובץ .env או בסביבת ההרצה ואז לאתחל את השרת."
+        )
+    if "google_api_key not set" in lower:
+        return "GOOGLE_API_KEY לא מוגדר. צריך להוסיף מפתח תקין לקובץ .env ואז לאתחל את השרת."
+    if "rate limit" in lower:
+        return "הגענו למגבלת השימוש של Gemini כרגע. נסה שוב מאוחר יותר או החלף למפתח עם מכסה זמינה."
+    return text
 
-    # If pipeline didn't load, return the actual error
-    if full_turn is None:
-        return f"שגיאה בטעינת הצינור: {_pipeline_error}"
 
-    state = _sessions.get(session_id, {}) if session_id else {}
-    reply, new_state = full_turn(user_text, state)
-    if session_id:
-        _sessions[session_id] = new_state
-    return reply
+def _api_chat(user_text: str, user_id: str = None) -> dict:
+    """Legacy chat endpoint now delegates to Ben's Agent so all UI uses one brain."""
+    return _api_ben_agent_chat(user_text, user_id or "flow_default_user")
 
 
 def _api_ben_agent_chat(user_text: str, user_id: str) -> dict:
@@ -113,9 +151,9 @@ def _api_ben_agent_chat(user_text: str, user_id: str) -> dict:
         try:
             reply, new_state, updated_profile = ben_agent_full_turn(user_text, user_id, state)
         except Exception as retry_err:
-            return {"error": str(retry_err)}
+            return {"error": _public_error_message(retry_err)}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": _public_error_message(e)}
 
     # Keep conversation history and profile, but preserve uploaded files
     session["state"] = new_state
@@ -249,4 +287,3 @@ else:
 # Keep the process alive (even if pipeline failed — so we can see the error)
 while True:
     time.sleep(1)
-

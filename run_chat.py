@@ -3,7 +3,7 @@
 Quick REPL to test the full multi-agent pipeline locally.
 
 Usage:
-    export GROQ_API_KEY="gsk_..."
+    export GOOGLE_API_KEY="replace_with_google_ai_studio_key"
     python3 run_chat.py          # normal mode
     python3 run_chat.py --debug  # show pipeline internals
 """
@@ -14,7 +14,7 @@ import json
 
 if not os.environ.get("GOOGLE_API_KEY"):
     print("❌ GOOGLE_API_KEY is not set.")
-    print("   Run: export GOOGLE_API_KEY='AIza...'")
+    print("   Run: export GOOGLE_API_KEY='replace_with_google_ai_studio_key'")
     print("   Get a free key at: https://aistudio.google.com")
     sys.exit(1)
 

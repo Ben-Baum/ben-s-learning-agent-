@@ -6,8 +6,8 @@ from openai import OpenAI, RateLimitError
 from pydantic import BaseModel, ValidationError
 
 # ─── Gemini API via OpenAI-compatible endpoint ────────────────────────────────
-# Set your Google API key:
-#   export GOOGLE_API_KEY="AIza..."
+# Set your Google API key locally, never in source control:
+#   export GOOGLE_API_KEY="replace_with_google_ai_studio_key"
 #
 # Model used: gemini-2.5-flash (strong personality + Hebrew + free tier)
 # Docs: https://ai.google.dev/gemini-api/docs/openai
@@ -28,7 +28,7 @@ def _call_with_fallback(fn_primary, fn_backup):
     if not _primary_client:
         raise RuntimeError(
             "GOOGLE_API_KEY not set.\n"
-            "Set it with: export GOOGLE_API_KEY='AIza...'\n"
+            "Set it with: export GOOGLE_API_KEY='replace_with_google_ai_studio_key'\n"
             "Get a free key at: https://aistudio.google.com"
         )
     try:
