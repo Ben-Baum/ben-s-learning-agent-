@@ -13,6 +13,7 @@ Usage:
 import json
 import os
 import re
+import sys
 import threading
 import time
 from collections import deque
@@ -107,6 +108,14 @@ class HTTPServer(ThreadingMixIn, _HTTPServer):
     """Multi-threaded HTTP server — each request gets its own thread."""
     daemon_threads = True
 
+    def handle_error(self, request, client_address):
+        exc_type, exc, _ = sys.exc_info()
+        if exc_type in (BrokenPipeError, ConnectionResetError):
+            return
+        if isinstance(exc, OSError) and getattr(exc, "errno", None) in (32, 54):
+            return
+        super().handle_error(request, client_address)
+
 
 class APIHandler(BaseHTTPRequestHandler):
     """Serves dashboard + REST API + SSE event stream."""
@@ -141,6 +150,16 @@ class APIHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self._cors()
         self.end_headers()
+
+    def do_HEAD(self):
+        path = urlparse(self.path).path
+        if path == "/" or path == "/dashboard":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self._cors()
+            self.end_headers()
+        else:
+            self.send_error(404)
 
     def do_GET(self):
         path = urlparse(self.path).path
@@ -342,21 +361,20 @@ class APIHandler(BaseHTTPRequestHandler):
         """Fire a fake full-pipeline event sequence to test SSE connectivity."""
         def fire():
             steps = [
-                (0.0,  "router",             "turn_start",    {"id": 9999, "input": "⚡ PING TEST"}, "active"),
-                (0.25, "router",             "start",         {"task": "Route: deep", "role": "router"}, "active"),
-                (0.5,  "router",             "route_decision",{"route": "deep"}, "idle"),
-                (0.8,  "nlp_analyzer",       "thinking",      {"content": "Analyzing emotions..."}, "thinking"),
-                (1.3,  "nlp_analyzer",       "result",        {"emotions": [{"label": "sadness", "intensity": 0.8, "polarity": "negative"}], "cognitive_distortions": [{"type": "catastrophizing", "confidence": 0.7, "explanation": "Expecting worst"}], "beliefs": [{"id": "b1", "level": "intermediate", "valence": "negative", "statement": "אני לא מספיק טוב", "strength": 0.8}]}, "idle"),
-                (1.5,  "belief_graph",       "start",         {"task": "Update belief graph"}, "active"),
-                (1.8,  "belief_graph",       "done",          {"new_nodes": 2, "new_edges": 1, "total_nodes": 5}, "idle"),
-                (2.0,  "knowledge_retriever","start",         {"task": "RAG retrieval"}, "active"),
-                (2.3,  "knowledge_retriever","done",          {"found": 3, "keywords": ["sadness", "catastrophizing", "self-worth"], "context_preview": "CBT techniques for addressing negative core beliefs..."}, "idle"),
-                (2.5,  "tactician",          "thinking",      {"content": "Building strategy..."}, "thinking"),
-                (3.0,  "tactician",          "result",        {"resistance": False, "vectors": [{"id": "v1", "priority": "high", "focus": "cognitive_restructuring", "description": "Challenge catastrophizing pattern", "angle": "gentle Socratic questioning"}]}, "idle"),
-                (3.15, "front_agent",        "message",       {"front_hint": {"tone": "warm", "move": "stay close, then add a small angle", "depth": "deeper", "route": "deep"}}, "active"),
-                (3.3,  "ben_agent",          "thinking",      {"content": "Composing personalized response..."}, "thinking"),
-                (3.8,  "ben_agent",          "result",        {"output": "✅ SSE is working! Events are flowing correctly."}, "idle"),
-                (3.85, "front_agent",        "turn_result",   {"text": "✅ SSE is working! Events are flowing correctly through the entire pipeline.", "route": "deep"}, "idle"),
+                (0.0,  "router",              "turn_start",     {"id": 9999, "input": "⚡ PING TEST"}, "active"),
+                (0.25, "router",              "start",          {"task": "Route: deep", "role": "router"}, "active"),
+                (0.5,  "router",              "route_decision", {"route": "deep"}, "idle"),
+                (0.8,  "nlp_analyzer",        "thinking",       {"content": "Analyzing emotions..."}, "thinking"),
+                (1.3,  "nlp_analyzer",        "result",         {"emotions": [{"label": "sadness", "intensity": 0.8, "polarity": "negative"}], "cognitive_distortions": [{"type": "catastrophizing", "confidence": 0.7, "explanation": "Expecting worst"}], "beliefs": [{"id": "b1", "level": "intermediate", "valence": "negative", "statement": "אני לא מספיק טוב", "strength": 0.8}]}, "idle"),
+                (1.5,  "belief_graph",        "start",          {"task": "Update belief graph"}, "active"),
+                (1.8,  "belief_graph",        "done",           {"new_nodes": 2, "new_edges": 1, "total_nodes": 5}, "idle"),
+                (2.0,  "knowledge_retriever", "start",          {"task": "RAG retrieval"}, "active"),
+                (2.3,  "knowledge_retriever", "done",           {"found": 3, "keywords": ["sadness", "catastrophizing", "self-worth"], "context_preview": "CBT techniques for addressing negative core beliefs..."}, "idle"),
+                (2.5,  "tactician",           "thinking",       {"content": "Building strategy..."}, "thinking"),
+                (3.0,  "tactician",           "result",         {"resistance": False, "vectors": [{"id": "v1", "priority": "high", "focus": "cognitive_restructuring", "description": "Challenge catastrophizing pattern", "angle": "gentle Socratic questioning"}]}, "idle"),
+                (3.2,  "ben_agent",           "thinking",       {"content": "Composing personalized response..."}, "thinking"),
+                (3.8,  "ben_agent",           "result",         {"output": "✅ SSE is working! Events are flowing correctly."}, "idle"),
+                (3.9,  "ben_agent",           "turn_result",    {"text": "✅ SSE is working! Ben's Agent pipeline is fully operational.", "route": "deep"}, "idle"),
             ]
             start = time.time()
             for delay, agent, etype, data, status in steps:
@@ -368,7 +386,7 @@ class APIHandler(BaseHTTPRequestHandler):
 
         t = threading.Thread(target=fire, daemon=True)
         t.start()
-        self._json_response({"status": "ping sequence started", "steps": 13})
+        self._json_response({"status": "ping sequence started", "steps": 14})
 
     # ── Prompts API ──
     def _get_prompts(self):
@@ -511,14 +529,19 @@ def agent_event(agent_id: str, event_type: str, data: dict = None, status: str =
     """
     Emit any event from any agent.
     event_type: start | thinking | tool_use | message | result | error | done
+    I/O errors (e.g. broken stdout pipe) are silently suppressed — they must never
+    crash the pipeline or propagate to the user as an error response.
     """
-    _emit({
-        "agent": agent_id,
-        "type": event_type,
-        "data": data or {},
-        "status": status,
-        "ts": datetime.utcnow().isoformat(),
-    })
+    try:
+        _emit({
+            "agent": agent_id,
+            "type": event_type,
+            "data": data or {},
+            "status": status,
+            "ts": datetime.utcnow().isoformat(),
+        })
+    except (OSError, BrokenPipeError, IOError):
+        pass  # dashboard disconnected or I/O unavailable — safe to ignore
 
 
 @contextmanager

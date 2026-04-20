@@ -102,6 +102,18 @@ def _api_ben_agent_chat(user_text: str, user_id: str) -> dict:
 
     try:
         reply, new_state, updated_profile = ben_agent_full_turn(user_text, user_id, state)
+    except (OSError, IOError, BrokenPipeError) as io_err:
+        # Transient I/O error (e.g. broken stdout pipe from PTY disconnect).
+        # Retry once — the pipeline itself is fine, only the logging channel had an issue.
+        import sys
+        try:
+            sys.stdout = open(os.devnull, 'w')
+        except Exception:
+            pass
+        try:
+            reply, new_state, updated_profile = ben_agent_full_turn(user_text, user_id, state)
+        except Exception as retry_err:
+            return {"error": str(retry_err)}
     except Exception as e:
         return {"error": str(e)}
 

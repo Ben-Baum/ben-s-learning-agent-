@@ -152,20 +152,43 @@
         /* FLOW TAB */
         .flow-container {
             display: grid;
-            grid-template-columns: 1fr 340px;
-            grid-template-rows: 1fr;
-            gap: 16px;
+            grid-template-columns: 1fr 420px; /* Widened right column for bigger chat */
+            grid-template-rows: 100%; /* Make it fill full height */
+            gap: 20px; /* Increased gap */
             padding: 16px;
             height: 100%;
+            overflow: hidden;
         }
 
-        /* Right sidebar: event log + chat stacked */
+        /* Right sidebar (Chat panel wrapper) */
         .right-sidebar {
             display: flex;
             flex-direction: column;
             gap: 12px;
             height: 100%;
             overflow: hidden;
+        }
+
+        /* Technical Details section below pipeline */
+        .technical-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .technical-details-header {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 30px;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px dashed #1e2329;
+            text-align: center;
         }
 
         .chat-panel {
@@ -296,17 +319,12 @@
             background: #0a0e13;
             border: 1px solid #1e2329;
             border-radius: 8px;
-            padding: 20px;
+            padding: 28px 20px 20px; /* extra top padding for pointer badge */
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-        .live-run-shell {
-            display: grid;
-            grid-template-columns: 1.25fr 0.95fr;
-            gap: 14px;
-            margin-bottom: 18px;
-        }
+
 
         .live-panel {
             background: #0d1117;
@@ -341,45 +359,6 @@
             font-family: 'IBM Plex Mono', monospace;
         }
 
-        .execution-map {
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .execution-lane {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border: 1px solid #1b2430;
-            border-radius: 10px;
-            background: linear-gradient(180deg, rgba(11, 16, 22, 0.95), rgba(8, 12, 16, 0.95));
-        }
-
-        .execution-lane.active {
-            border-color: currentColor;
-            box-shadow: inset 0 0 0 1px currentColor, 0 0 18px color-mix(in srgb, currentColor 24%, transparent);
-        }
-
-        .lane-label {
-            min-width: 86px;
-            text-align: center;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-        }
-
-        .lane-path {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-            overflow-x: auto;
-            padding-bottom: 2px;
-        }
 
         .live-node {
             min-width: 130px;
@@ -1410,11 +1389,11 @@
         }
 
 
-        /* Pipeline route columns – class used by renderPipeline() JS */
+        /* Pipeline route lanes – horizontal rows, one per route */
         .pipeline-routes-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             width: 100%;
         }
 
@@ -1799,14 +1778,11 @@
             .flow-container {
                 grid-template-columns: 1fr;
             }
-            .live-run-shell {
+            .technical-details-grid {
                 grid-template-columns: 1fr;
             }
             .prompts-container {
                 grid-template-columns: 1fr;
-            }
-            .event-log {
-                max-height: 300px;
             }
         }
 
@@ -1882,21 +1858,7 @@
                 max-height: 350px;
             }
 
-            /* Execution map */
-            .execution-lane {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .lane-label {
-                min-width: auto;
-                text-align: left;
-                margin-bottom: 4px;
-            }
-            .lane-path {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                padding-bottom: 6px;
-            }
+
             .live-node {
                 min-width: 110px;
                 max-width: 150px;
@@ -1908,8 +1870,8 @@
                 gap: 10px;
             }
 
-            /* Live run shell */
-            .live-run-shell {
+            /* Live run shell -> Technical Details */
+            .technical-details-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -2175,14 +2137,12 @@
 
                 <!-- LEFT: full-height pipeline visualization -->
                 <div class="pipeline-canvas">
-                    <div class="live-run-shell">
-                        <div class="live-panel">
-                            <div class="live-panel-header">
-                                <div class="live-panel-title">Execution Map</div>
-                                <div class="live-panel-meta" id="liveRunMeta">No active turn</div>
-                            </div>
-                            <div class="execution-map" id="executionMap"></div>
-                        </div>
+                    <!-- Top: Visual Pipeline fills the horizontal space -->
+                    <div class="pipeline" id="pipeline" style="margin-bottom: 40px;"></div>
+
+                    <!-- Bottom: Technical Details (scroll down to view) -->
+                    <div class="technical-details-header">Technical Details & Logs</div>
+                    <div class="technical-details-grid">
                         <div class="live-panel">
                             <div class="live-panel-header">
                                 <div class="live-panel-title">Node Details</div>
@@ -2190,37 +2150,27 @@
                             </div>
                             <div class="details-body" id="nodeDetailsPanel"></div>
                         </div>
-                    </div>
 
-                    <div class="live-panel" style="margin-bottom:18px;">
-                        <div class="live-panel-header">
-                            <div class="live-panel-title">State Snapshot</div>
-                            <div class="live-panel-meta" id="stateSnapMeta">persistent state — updates in real-time</div>
+                        <div class="live-panel">
+                            <div class="live-panel-header">
+                                <div class="live-panel-title">State Snapshot</div>
+                                <div class="live-panel-meta" id="stateSnapMeta">persistent state — updates in real-time</div>
+                            </div>
+                            <div id="stateSnapshot"></div>
                         </div>
-                        <div id="stateSnapshot"></div>
-                    </div>
 
-                    <div class="live-panel" style="margin-bottom:18px;">
-                        <div class="live-panel-header">
-                            <div class="live-panel-title">Turn Timeline</div>
-                            <div class="live-panel-meta" id="turnTimelineMeta">Waiting for events</div>
+                        <div class="live-panel">
+                            <div class="live-panel-header">
+                                <div class="live-panel-title">Turn Timeline</div>
+                                <div class="live-panel-meta" id="turnTimelineMeta">Waiting for events</div>
+                            </div>
+                            <div class="turn-timeline" id="turnTimeline"></div>
                         </div>
-                        <div class="turn-timeline" id="turnTimeline"></div>
                     </div>
-
-                    <div class="pipeline" id="pipeline"></div>
                 </div>
 
-                <!-- RIGHT: event log + chat stacked -->
+                <!-- RIGHT: Chat panel taking full height -->
                 <div class="right-sidebar">
-
-                    <!-- Event log (top, smaller) -->
-                    <div class="event-log" style="max-height:260px;min-height:140px;">
-                        <div class="event-log-header">Event Log</div>
-                        <div class="event-log-items" id="eventLog"></div>
-                    </div>
-
-                    <!-- Chat (bottom, takes remaining space) -->
                     <div class="chat-panel">
                         <div class="chat-header">
                             <div class="chat-dot"></div>
@@ -2235,7 +2185,6 @@
                             <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">▶</button>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -2424,12 +2373,12 @@
         // ============================================================================
 
         const AGENTS = [
-            { name: 'router', role: 'Route Selector', type: 'code' },
+            { name: 'router', role: 'Smart Router', type: 'code' },
             { name: 'nlp_analyzer', role: 'NLP Analysis', type: 'llm' },
             { name: 'belief_graph', role: 'Belief Graph Mapper', type: 'code' },
             { name: 'knowledge_retriever', role: 'RAG Retrieval', type: 'code' },
             { name: 'tactician', role: 'Strategy Mapper', type: 'llm' },
-            { name: 'front_agent', role: 'Response Generator', type: 'llm' },
+            { name: 'front_agent', role: 'Response Generator', type: 'llm' }, // kept for backend event compatibility
             { name: 'ben_agent', role: "Ben's Learning Agent", type: 'llm' }
         ];
 
@@ -2441,9 +2390,9 @@
         ];
 
         const ROUTE_PATHS = {
-            light: ['router', 'front_agent', 'ben_agent'],
-            medium: ['router', 'nlp_analyzer', 'belief_graph', 'front_agent', 'ben_agent'],
-            deep: ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'front_agent', 'ben_agent']
+            light: ['router', 'ben_agent'],
+            medium: ['router', 'nlp_analyzer', 'belief_graph', 'ben_agent'],
+            deep: ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'ben_agent']
         };
 
         // ============================================================================
@@ -2619,6 +2568,7 @@
             state.currentRoute = null;
             state.currentTurnId = null;
             state.selectedNode = null;
+            state.currentTurnVisited = new Set();
             wsEventTotal = 0;
 
             // 3. אפס UI
@@ -2630,7 +2580,6 @@
             if (routeBadge) routeBadge.style.display = 'none';
             updateConnectionStatus();
             renderPipeline();
-            renderEventLog();
             renderInspector();
 
             showToast('🔄 מתחבר מחדש...', '#f78530');
@@ -2674,23 +2623,33 @@
             if (state.events.length > 200) state.events.pop();
 
             updateEventCount();
-            renderEventLog();
+
+            // ── Mark agent as visited in this turn ──
+            if (agent && agent !== 'system') {
+                if (!state.currentTurnVisited) state.currentTurnVisited = new Set();
+                state.currentTurnVisited.add(agent);
+            }
 
             // ── Update live agent status + store last data payload ──
             if (state.agents.has(agent)) {
                 const agentState = state.agents.get(agent);
-                agentState.status = status || 'idle';
-                if (type === 'thinking' || type === 'start') {
-                    agentState.currentTask = data?.task || data?.content || '';
-                } else if (type === 'done' || type === 'result' || type === 'route_decision' || type === 'turn_result') {
+
+                // Fix forever-active nodes by enforcing idle on terminating events
+                let currentStatus = status || 'idle';
+                if (['done', 'result', 'route_decision', 'turn_result', 'message'].includes(type)) {
+                    currentStatus = 'idle';
                     agentState.currentTask = '';
+                } else if (['thinking', 'start'].includes(type)) {
+                    agentState.currentTask = data?.task || data?.content || '';
                 }
+                agentState.status = currentStatus;
+
                 // Store payload for display in the flow card
                 if (data && Object.keys(data).length > 0) {
                     const prev = state.agentLastData.get(agent) || {};
                     state.agentLastData.set(agent, { ...prev, ...data, _type: type });
                 }
-                renderPipeline();
+                // Removed renderPipeline() from here to allow data accumulation first!
             }
 
             // ── Inspector: accumulate turn data ──
@@ -2711,6 +2670,8 @@
                     benAgentOutput: null, benProfile: null,
                     events: []
                 });
+                // ── Reset visited tracking for new turn ──
+                state.currentTurnVisited = new Set();
             } else if (type === 'route_decision') {
                 // Route decided — highlight path
                 const route = data?.route || null;
@@ -2782,6 +2743,7 @@
                 if (state.turns[0].events.length > 80) state.turns[0].events.shift();
             }
 
+            renderPipeline();
             renderInspector();
         }
 
@@ -2896,10 +2858,10 @@
 
             if (!rows.length) return '';
             return `<div style="
-                margin-top:8px;border-top:1px solid #1e2329;padding-top:7px;
+                margin-top:4px;border-top:1px solid #1e2329;padding-top:4px;
                 text-align:left;font-family:'IBM Plex Mono',monospace;
             ">` + rows.map(([k, v]) => `
-                <div style="display:flex;gap:4px;margin-bottom:2px;line-height:1.4;">
+                <div style="display:flex;gap:4px;margin-bottom:0px;line-height:1.2;">
                   <span style="font-size:8.5px;color:#58697a;white-space:nowrap;flex-shrink:0;">${escHtml(String(k))}</span>
                   <span style="font-size:8.5px;color:#8b949e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(String(v))}</span>
                 </div>`).join('') + '</div>';
@@ -3009,58 +2971,6 @@
                 `).join('') + '</div>';
         }
 
-        function renderExecutionMap() {
-            const container = document.getElementById('executionMap');
-            const meta = document.getElementById('liveRunMeta');
-            const turn = latestTurn();
-            if (!container || !meta) return;
-
-            if (!turn) {
-                meta.textContent = 'No active turn';
-                container.innerHTML = `<div class="empty-state" style="height:180px;"><div class="empty-state-icon">🧠</div><div class="empty-state-text">שלח הודעה כדי לראות execution map חי</div></div>`;
-                return;
-            }
-
-            meta.textContent = `Turn #${state.turns.length} · ${turn.route ? turn.route.toUpperCase() : 'ROUTING'} · ${truncate(turn.input, 60)}`;
-
-            const lanes = [
-                ['light', '🟢 LIGHT', ['router', 'ben_agent']],
-                ['medium', '🟡 MEDIUM', ['router', 'nlp_analyzer', 'belief_graph', 'ben_agent']],
-                ['deep', '🟣 DEEP', ['router', 'nlp_analyzer', 'belief_graph', 'knowledge_retriever', 'tactician', 'ben_agent']],
-            ];
-
-            container.innerHTML = lanes.map(([routeName, label, nodes]) => {
-                const color = ROUTE_COLORS[routeName];
-                const active = turn.route === routeName;
-                return `
-                    <div class="execution-lane ${active ? 'active' : ''}" style="color:${color}">
-                        <div class="lane-label">${label}</div>
-                        <div class="lane-path">
-                            ${nodes.map((name, idx) => {
-                                const agentDef = AGENTS.find(a => a.name === name);
-                                const nodeState = nodeStateFor(name, turn);
-                                const metaPills = nodeMetaFor(name, turn)
-                                    .map(value => `<span class="live-node-pill">${escHtml(value)}</span>`)
-                                    .join('');
-                                const dbPills = dbPillsFor(name, turn);
-                                return `
-                                    <div class="live-node ${state.selectedNode === name ? 'selected' : ''} ${nodeState === 'active' ? 'active' : ''}" onclick="selectNode('${name}')">
-                                        <div class="live-node-head">
-                                            <div class="live-node-name">${escHtml(name)}</div>
-                                            <div class="live-node-state ${nodeState}"></div>
-                                        </div>
-                                        <div class="live-node-role">${escHtml(agentDef?.role || name)}</div>
-                                        <div class="live-node-meta">${metaPills || '<span class="live-node-pill">waiting</span>'}</div>
-                                        ${dbPills ? `<div class="live-node-db">${dbPills}</div>` : ''}
-                                    </div>
-                                    ${idx < nodes.length - 1 ? '<div class="live-arrow">→</div>' : ''}
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
 
         function renderNodeDetails() {
             const panel = document.getElementById('nodeDetailsPanel');
@@ -3202,6 +3112,7 @@
             if (!agentDef || !agentState) return '';
 
             const isActive = agentState.status === 'thinking' || agentState.status === 'active';
+            const wasVisited = state.currentTurnVisited && state.currentTurnVisited.has(agentName);
             const route = state.currentRoute;
             const onPath = route && ROUTE_PATHS[route] && ROUTE_PATHS[route].includes(agentName);
             const hasData = state.agentLastData.has(agentName);
@@ -3230,37 +3141,99 @@
 
             const dataSection = formatAgentData(agentName, state.agentLastData.get(agentName));
 
-            return `
+            const pointerColor = route ? ROUTE_COLORS[route] : '#39d0d8';
+
+            // Pointer: bouncing "● ACTIVE" badge above node when actively processing
+            const pointer = isActive ? `
               <div style="
-                background:#0d1117;
-                border:1.5px solid ${borderColor};
-                border-radius:8px;
-                padding:10px 12px;
-                min-width:155px;
-                max-width:185px;
-                text-align:center;
-                transition:all 0.3s;
-                ${glowStyle}
-                ${pulseStyle}
+                position:absolute;
+                top:-22px;
+                left:50%;
+                transform:translateX(-50%);
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                gap:0;
+                z-index:10;
+                animation: pointerBounce 0.8s ease-in-out infinite;
+                pointer-events:none;
               ">
-                <div style="width:8px;height:8px;border-radius:50%;background:${dotColor};margin:0 auto 5px;${(isActive||hasData) ? 'box-shadow:0 0 6px '+dotColor+';' : ''}"></div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#e6edf3;letter-spacing:0.05em;">${agentDef.name.replace('_', '_\u200B').toUpperCase()}</div>
-                <div style="font-size:9px;color:#58697a;margin-top:2px;">${agentDef.role}</div>
-                ${taskText}
-                <div style="margin-top:5px;">
-                  <span style="font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;
-                    ${agentDef.type === 'llm'
-                      ? 'background:rgba(57,208,216,0.12);color:#39d0d8;'
-                      : 'background:rgba(63,185,80,0.12);color:#3fb950;'}">${agentDef.type.toUpperCase()}</span>
+                <div style="
+                  font-size:9px;
+                  font-family:'IBM Plex Mono',monospace;
+                  font-weight:700;
+                  color:${pointerColor};
+                  background:${pointerColor}20;
+                  border:1px solid ${pointerColor};
+                  border-radius:3px;
+                  padding:1px 5px;
+                  white-space:nowrap;
+                  animation: pointerFade 0.8s ease-in-out infinite;
+                  letter-spacing:0.05em;
+                ">● ACTIVE</div>
+                <div style="color:${pointerColor};font-size:12px;line-height:1;margin-top:1px;">▼</div>
+              </div>` : '';
+
+            // "Done" badge — small static checkmark shown after the agent finished this turn
+            const doneBadge = (!isActive && wasVisited) ? `
+              <div style="
+                position:absolute;
+                top:-14px;
+                left:50%;
+                transform:translateX(-50%);
+                font-size:9px;
+                font-family:'IBM Plex Mono',monospace;
+                font-weight:700;
+                color:${pointerColor};
+                background:${pointerColor}18;
+                border:1px solid ${pointerColor}55;
+                border-radius:3px;
+                padding:1px 5px;
+                white-space:nowrap;
+                letter-spacing:0.04em;
+                pointer-events:none;
+                z-index:10;
+              ">✓ DONE</div>` : '';
+
+            return `
+              <div style="position:relative;display:inline-block;">
+                ${pointer}
+                ${doneBadge}
+                <div style="
+                  background:#0d1117;
+                  border:${isActive ? '2px' : wasVisited ? '2px' : '1.5px'} solid ${borderColor};
+                  border-radius:8px;
+                  padding:6px 8px;
+                  min-width:130px;
+                  max-width:160px;
+                  text-align:center;
+                  transition:all 0.3s;
+                  ${isActive ? `--pulse-color:${pointerColor};animation:nodePulse 1s ease-in-out infinite;` : glowStyle}
+                ">
+                  <div style="width:8px;height:8px;border-radius:50%;background:${dotColor};margin:0 auto 5px;${(isActive||hasData) ? 'box-shadow:0 0 6px '+dotColor+';' : ''}"></div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#e6edf3;letter-spacing:0.05em;">${agentDef.name.replace('_', '_\u200B').toUpperCase()}</div>
+                  <div style="font-size:9px;color:#58697a;margin-top:2px;">${agentDef.role}</div>
+                  ${taskText}
+                  <div style="margin-top:5px;">
+                    <span style="font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;
+                      ${agentDef.type === 'llm'
+                        ? 'background:rgba(57,208,216,0.12);color:#39d0d8;'
+                        : 'background:rgba(63,185,80,0.12);color:#3fb950;'}">${agentDef.type.toUpperCase()}</span>
+                  </div>
+                  ${apiLabel}
+                  ${dataSection}
                 </div>
-                ${apiLabel}
-                ${dataSection}
               </div>`;
         }
 
         function arrow(color) {
             const c = color || '#2d3f52';
-            return `<div style="text-align:center;padding:4px 0;color:${c};font-size:18px;line-height:1;">↓</div>`;
+            return `<div style="text-align:center;padding:1px 0;color:${c};font-size:14px;line-height:1;">↓</div>`;
+        }
+
+        function arrowH(color) {
+            const c = color || '#2d3f52';
+            return `<div style="display:flex;align-items:center;padding:0 2px;color:${c};font-size:14px;line-height:1;">→</div>`;
         }
 
         function col(routeName, label, agentsInOrder, apiLabels) {
@@ -3268,34 +3241,36 @@
             const isActive = state.currentRoute === routeName;
             const borderStyle = isActive ? `border:2px solid ${color};box-shadow:0 0 20px ${color}33;` : `border:1.5px solid ${color}44;`;
 
+            // Agents flow LEFT → RIGHT with horizontal arrows
             let inner = agentsInOrder.map((name, i) => {
                 const parts = [agentCard(name, apiLabels[i] || null)];
-                if (i < agentsInOrder.length - 1) parts.push(arrow(isActive ? color : null));
+                if (i < agentsInOrder.length - 1) parts.push(arrowH(isActive ? color : null));
                 return parts.join('');
             }).join('');
 
             return `
               <div style="
                 background:${color}08;
-                border-radius:10px;
-                padding:12px 10px;
+                border-radius:6px;
+                padding:6px 10px;
                 ${borderStyle}
                 display:flex;
-                flex-direction:column;
+                flex-direction:row;
                 align-items:center;
-                gap:0;
+                gap:4px;
                 transition:all 0.3s;
+                overflow-x: auto;
               ">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;color:${color};letter-spacing:0.08em;margin-bottom:10px;text-align:center;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:${color};letter-spacing:0.08em;min-width:58px;text-align:center;flex-shrink:0;">
                   ${label}
                 </div>
+                <div style="color:${color};font-size:12px;flex-shrink:0;">|</div>
                 ${inner}
               </div>`;
         }
 
         function renderPipeline() {
             const pipeline = document.getElementById('pipeline');
-            renderExecutionMap();
             renderNodeDetails();
             renderTurnTimeline();
             renderStateSnapshot();
@@ -3310,86 +3285,62 @@
             pipeline.innerHTML = `
               <style>
                 @keyframes nodePulse {
-                  0%,100% { opacity:1; }
-                  50% { opacity:0.65; }
+                  0%,100% { box-shadow: 0 0 10px var(--pulse-color, #39d0d8), 0 0 20px var(--pulse-color, #39d0d8)44; }
+                  50% { box-shadow: 0 0 20px var(--pulse-color, #39d0d8), 0 0 40px var(--pulse-color, #39d0d8)88; }
+                }
+                @keyframes pointerBounce {
+                  0%,100% { transform: translateY(0); }
+                  50% { transform: translateY(-4px); }
+                }
+                @keyframes pointerFade {
+                  0%,100% { opacity: 1; }
+                  50% { opacity: 0.6; }
                 }
               </style>
 
               <!-- User message -->
-              <div style="text-align:center;margin-bottom:4px;">
-                <div style="display:inline-flex;align-items:center;gap:8px;background:#0d1117;border:1.5px solid #2d3f52;border-radius:8px;padding:8px 20px;">
-                  <span style="font-size:14px;">💬</span>
-                  <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#c9d1d9;">הודעת משתמש</span>
-                  <span style="font-size:10px;color:#58697a;">כל הודעה עוברת דרך הראוטר</span>
+              <div style="text-align:center;margin-bottom:2px;">
+                <div style="display:inline-flex;align-items:center;gap:6px;background:#0d1117;border:1.5px solid #2d3f52;border-radius:6px;padding:4px 14px;">
+                  <span style="font-size:12px;">💬</span>
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#c9d1d9;">הודעת משתמש</span>
+                  <span style="font-size:9px;color:#58697a;">כל הודעה עוברת דרך הראוטר</span>
                 </div>
               </div>
 
               ${arrow('#2d3f52')}
 
               <!-- Smart Router -->
-              <div style="text-align:center;margin-bottom:4px;">
-                <div style="display:inline-block;background:${routerActive ? '#d2992222' : '#d2992210'};border:1.5px solid ${routerActive ? '#d29922' : '#d2992255'};border-radius:10px;padding:12px 24px;${routerActive ? 'box-shadow:0 0 16px #d2992233;' : ''}transition:all 0.3s;">
-                  <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#d29922;">⚡ Smart Router</div>
-                  <div style="font-size:10px;color:#88732a;margin-top:3px;">מסווג: light / medium / deep</div>
-                  <div style="margin-top:6px;"><span style="font-size:9px;background:rgba(63,185,80,0.12);color:#3fb950;padding:2px 7px;border-radius:3px;font-weight:600;">קוד Python — 0 טוקנים</span></div>
+              <div style="text-align:center;margin-bottom:2px;">
+                <div style="display:inline-block;background:${routerActive ? '#d2992222' : '#d2992210'};border:1.5px solid ${routerActive ? '#d29922' : '#d2992255'};border-radius:8px;padding:6px 16px;${routerActive ? 'box-shadow:0 0 16px #d2992233;' : ''}transition:all 0.3s;">
+                  <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;color:#d29922;">⚡ Smart Router</div>
+                  <div style="font-size:9px;color:#88732a;margin-top:2px;">מסווג: light / medium / deep</div>
+                  <div style="margin-top:4px;"><span style="font-size:9px;background:rgba(63,185,80,0.12);color:#3fb950;padding:2px 7px;border-radius:3px;font-weight:600;">קוד Python — 0 טוקנים</span></div>
                   ${routeLabel}
                 </div>
               </div>
 
               <!-- Route separator -->
-              <div style="text-align:center;padding:6px 0;font-size:11px;color:#58697a;letter-spacing:0.08em;">
+              <div style="text-align:center;padding:2px 0;font-size:10px;color:#58697a;letter-spacing:0.08em;">
                 ↓ &nbsp; מסלול לפי סיווג &nbsp; ↓
               </div>
 
               <!-- 3 columns -->
               <div class="pipeline-routes-grid">
-                ${col('deep',   '🟣 Deep',   ['nlp_analyzer','belief_graph','knowledge_retriever','tactician','front_agent'], ['API #1','קוד','קוד DB','API #2','API #3'])}
-                ${col('medium', '🟡 Medium', ['nlp_analyzer','belief_graph','front_agent'], ['API #1','קוד','API #2'])}
-                ${col('light',  '🟢 Light',  ['front_agent'], ['API #1'])}
+                ${col('deep',   '🟣 Deep',   ['nlp_analyzer','belief_graph','knowledge_retriever','tactician','ben_agent'], ['API #1','קוד','קוד DB','API #2','API #3'])}
+                ${col('medium', '🟡 Medium', ['nlp_analyzer','belief_graph','ben_agent'], ['API #1','קוד','API #2'])}
+                ${col('light',  '🟢 Light',  ['ben_agent'], ['API #1'])}
               </div>
 
               ${arrow('#2d3f52')}
 
               <!-- Response -->
-              <div style="text-align:center;margin-top:4px;">
-                <div style="display:inline-flex;align-items:center;gap:8px;background:#0d1117;border:1.5px solid #2d3f52;border-radius:8px;padding:8px 20px;">
-                  <span style="font-size:14px;">💬</span>
-                  <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#c9d1d9;">תגובה למשתמש</span>
+              <div style="text-align:center;margin-top:2px;">
+                <div style="display:inline-flex;align-items:center;gap:6px;background:#0d1117;border:1.5px solid #2d3f52;border-radius:6px;padding:4px 14px;">
+                  <span style="font-size:12px;">💬</span>
+                  <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;color:#c9d1d9;">תגובה למשתמש</span>
                 </div>
               </div>
             `;
-        }
-
-        // ============================================================================
-        // FLOW TAB - EVENT LOG
-        // ============================================================================
-
-        function renderEventLog() {
-            const log = document.getElementById('eventLog');
-            log.innerHTML = '';
-
-            state.events.slice(0, 50).forEach(event => {
-                const item = document.createElement('div');
-                item.className = 'event-item';
-
-                const timestamp = new Date(event.ts).toLocaleTimeString();
-
-                item.innerHTML = `
-                    <div class="event-agent">${event.agent}</div>
-                    <div class="event-type-row">
-                        <div class="event-type-badge ${event.type}">${event.type}</div>
-                        <div class="event-timestamp">${timestamp}</div>
-                    </div>
-                    <div class="event-data">${JSON.stringify(event.data, null, 2)}</div>
-                `;
-
-                item.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    item.classList.toggle('expanded');
-                });
-
-                log.appendChild(item);
-            });
         }
 
         // ============================================================================
