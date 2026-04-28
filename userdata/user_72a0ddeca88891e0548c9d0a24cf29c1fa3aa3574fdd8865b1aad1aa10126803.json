@@ -1,0 +1,64 @@
+{
+  "profile": {
+    "message_count": 4,
+    "therapy_phase": "שיקוף"
+  },
+  "uploaded_files": [],
+  "sessions": {
+    "session_a1f3e082c558": {
+      "id": "session_a1f3e082c558",
+      "title": "היי",
+      "created_at": "2026-04-28T12:01:43Z",
+      "updated_at": "2026-04-28T12:05:17Z",
+      "state": {
+        "belief_graph_json": {},
+        "recent_nlp_results": [],
+        "conversation_history": [
+          {
+            "role": "user",
+            "content": "היי"
+          },
+          {
+            "role": "assistant",
+            "content": "היי! מה שלומך היום?"
+          }
+        ],
+        "last_stage_latencies": {
+          "front_ms": 2101
+        },
+        "last_route": "light",
+        "recent_routes": [
+          "light"
+        ]
+      }
+    },
+    "session_64a47ea28cb1": {
+      "id": "session_64a47ea28cb1",
+      "title": "vhh",
+      "created_at": "2026-04-28T12:08:04Z",
+      "updated_at": "2026-04-28T12:28:12Z",
+      "state": {
+        "belief_graph_json": {},
+        "recent_nlp_results": [],
+        "conversation_history": [
+          {
+            "role": "user",
+            "content": "vhh"
+          },
+          {
+            "role": "assistant",
+            "content": "Hey there! Did you mean to type something else, or is 'vhh' a new secret code I need to learn? 😉"
+          }
+        ],
+        "last_stage_latencies": {
+          "front_ms": 9524
+        },
+        "last_route": "light",
+        "recent_routes": [
+          "light"
+        ]
+      }
+    }
+  },
+  "active_session_id": "session_64a47ea28cb1"
+}

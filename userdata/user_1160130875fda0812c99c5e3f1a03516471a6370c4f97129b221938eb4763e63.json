@@ -1,0 +1,61 @@
+{
+  "state": {
+    "belief_graph_json": {},
+    "recent_nlp_results": [],
+    "conversation_history": [
+      {
+        "role": "user",
+        "content": "שלום"
+      },
+      {
+        "role": "assistant",
+        "content": "היי! מה שלומך?"
+      },
+      {
+        "role": "user",
+        "content": "שלום"
+      },
+      {
+        "role": "assistant",
+        "content": "היי שוב! מה שלומך? הכל טוב?"
+      }
+    ],
+    "user_profile": {
+      "preferred_language": "unknown",
+      "tone": "unknown",
+      "formality_level": 0.5,
+      "avg_message_length": "unknown",
+      "communication_style": "unknown",
+      "emotional_openness": 0.5,
+      "humor_receptiveness": 0.5,
+      "recurring_topics": [],
+      "vocabulary_markers": [],
+      "learning_notes": "",
+      "message_count": 2,
+      "therapy_phase": "תשאול"
+    },
+    "last_stage_latencies": {
+      "front_ms": 5585
+    },
+    "last_route": "light",
+    "recent_routes": [
+      "light",
+      "light"
+    ]
+  },
+  "profile": {
+    "preferred_language": "unknown",
+    "tone": "unknown",
+    "formality_level": 0.5,
+    "avg_message_length": "unknown",
+    "communication_style": "unknown",
+    "emotional_openness": 0.5,
+    "humor_receptiveness": 0.5,
+    "recurring_topics": [],
+    "vocabulary_markers": [],
+    "learning_notes": "",
+    "message_count": 2,
+    "therapy_phase": "תשאול"
+  },
+  "uploaded_files": []
+}
