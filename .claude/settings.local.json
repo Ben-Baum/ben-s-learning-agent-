@@ -71,7 +71,10 @@
       "Bash(git stash *)",
       "Bash(git checkout *)",
       "Bash(git commit -m 'feat: Extract char3d-canvas into standalone Char3DViewer module *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git commit -m 'Update: Complete project state with Char3DViewer module integration *)",
+      "Bash(gh repo *)",
+      "Bash(git commit -m 'feat: Add app.html with complete Char3DViewer integration *)"
     ]
   }
 }
