@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#081120" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>הסוכן של בן</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Tokens ─────────────────────────────────────── */
+    :root {
+      --bg:       #081120;
+      --bg2:      #0C1830;
+      --card:     rgba(255,255,255,0.06);
+      --card-b:   rgba(255,255,255,0.11);
+      --teal:     #00C2AE;
+      --teal-dim: rgba(0,194,174,0.18);
+      --gold:     #F0C030;
+      --gold-dim: rgba(240,192,48,0.18);
+      --purple:   #7B68EE;
+      --t1:       #FFFFFF;
+      --t2:       rgba(255,255,255,0.62);
+      --t3:       rgba(255,255,255,0.32);
+      --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      height: 100%;
+      overscroll-behavior: none;
+      background: var(--bg);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      height: 100%;
+      font-family: var(--font);
+      color: var(--t1);
+      background: var(--bg);
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font-family: var(--font); cursor: pointer; border: none; background: none; }
+    input, textarea { font-family: var(--font); }
+
+    /* ── 3D Character ─────────────────────────────────── */
+    .char3d-canvas {
+      width: 240px;
+      height: 280px;
+      display: block;
+      cursor: grab;
+      touch-action: none;
+    }
+    .char3d-canvas:active { cursor: grabbing; }
+
+    .char3d-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+    .char3d-loading.hidden { opacity: 0; }
+
+    .char3d-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(0, 194, 174, 0.2);
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: char3d-spin 1s linear infinite;
+    }
+    @keyframes char3d-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .char3d-loading-text {
+      font-size: 12px;
+      color: var(--t2);
+      text-align: center;
+    }
+
+    .char3d-loading-bar {
+      width: 140px;
+      height: 4px;
+      background: rgba(0, 194, 174, 0.2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .char3d-loading-fill {
+      height: 100%;
+      background: var(--teal);
+      width: 0%;
+      transition: width 0.2s;
+    }
+
+    .char3d-customize-btn {
+      position: absolute;
+      bottom: 6px;
+      right: 12px;
+      padding: 8px 16px;
+      background: var(--teal);
+      color: var(--bg);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 194, 174, 0.3);
+      transition: transform 0.2s;
+    }
+    .char3d-customize-btn:hover { transform: translateY(-2px); }
+    .char3d-customize-btn:active { transform: translateY(0); }
+    .char3d-customize-btn svg { width: 14px; height: 14px; }
+
+    .char3d-panel-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .char3d-panel-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    .char3d-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 901;
+      background: var(--bg2);
+      border-radius: 24px 24px 0 0;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 20px;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .char3d-panel.open { transform: translateY(0); }
+    .char3d-panel-handle {
+      width: 32px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .char3d-panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .char3d-panel-subtitle {
+      font-size: 13px;
+      color: var(--t3);
+      margin-bottom: 20px;
+    }
+
+    .char3d-section {
+      margin-bottom: 18px;
+    }
+    .char3d-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--t3);
+      margin-bottom: 12px;
+    }
+
+    .char3d-color-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .char3d-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .char3d-swatch:hover { transform: scale(1.1); }
+    .char3d-swatch.active {
+      border-color: var(--t1);
+      box-shadow: 0 0 0 2px var(--bg);
+    }
+    .char3d-swatch.custom {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 2px solid var(--t3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .char3d-swatch.custom input[type="color"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    .char3d-swatch.custom::after {
+      content: '+';
+      color: var(--t3);
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    .char3d-chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .char3d-chip {
+      padding: 8px 16px;
+      background: var(--card);
+      border: 1px solid var(--card-b);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--t2);
+      transition: all 0.2s;
+    }
+    .char3d-chip:hover { background: var(--card-b); }
+    .char3d-chip.active {
+      background: var(--teal);
+      color: var(--bg);
+      border-color: var(--teal);
+    }
+
+    .char3d-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .char3d-slider-row input[type="range"] {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(0, 194, 174, 0.2);
+      border-radius: 2px;
+      outline: none;
+    }
+    .char3d-slider-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--teal);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 194, 174, 0.3);
+    }
+    .char3d-slider-row input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      background: var(--teal);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .char3d-slider-value {
+      font-size: 12px;
+      color: var(--teal);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    .home-stage {
+      position: relative;
+      width: 240px;
+      height: 340px;
+      margin: 0 auto;
+    }
+    .char-float {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="home-stage">
+    <div class="char-float" id="char3d-stage">
+      <canvas id="char3d-canvas" class="char3d-canvas"></canvas>
+      <div class="char3d-loading" id="char3d-loading">
+        <div class="char3d-spinner"></div>
+        <div class="char3d-loading-text" id="char3d-loading-text">טוען דמות...</div>
+        <div class="char3d-loading-bar"><div class="char3d-loading-fill" id="char3d-loading-fill"></div></div>
+      </div>
+      <button class="char3d-customize-btn" id="char3d-customize-btn" aria-label="התאם אישית">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        התאם
+      </button>
+    </div>
+  </div>
+
+  <div class="char3d-panel-backdrop" id="char3d-panel-backdrop"></div>
+  <div class="char3d-panel" id="char3d-panel" role="dialog" aria-label="התאמת דמות">
+    <div class="char3d-panel-handle"></div>
+    <div class="char3d-panel-title">התאם את הדמות</div>
+    <div class="char3d-panel-subtitle">צבעים · בגדים · תנועות</div>
+
+    <!-- Body Color -->
+    <div class="char3d-section">
+      <div class="char3d-section-label">🎨 צבע גוף</div>
+      <div class="char3d-color-row" id="char3d-body-colors">
+        <button class="char3d-swatch active" data-target="body" data-color="#FAD4A0" style="background:#FAD4A0" aria-label="עור בהיר"></button>
+        <button class="char3d-swatch" data-target="body" data-color="#E89858" style="background:#E89858" aria-label="עור בינוני"></button>
+        <button class="char3d-swatch" data-target="body" data-color="#B06020" style="background:#B06020" aria-label="עור כהה"></button>
+        <button class="char3d-swatch" data-target="body" data-color="#8E6BFF" style="background:#8E6BFF" aria-label="סגול"></button>
+        <button class="char3d-swatch" data-target="body" data-color="#00C2AE" style="background:#00C2AE" aria-label="טורקיז"></button>
+        <label class="char3d-swatch custom" aria-label="צבע מותאם">
+          <input type="color" data-target="body" value="#FAD4A0">
+        </label>
+      </div>
+    </div>
+
+    <!-- Outfit (clothes) -->
+    <div class="char3d-section">
+      <div class="char3d-section-label">👔 בגדים</div>
+      <div class="char3d-color-row" id="char3d-outfit-colors">
+        <button class="char3d-swatch active" data-target="outfit" data-color="#1A2472" style="background:#1A2472" aria-label="כחול עמוק"></button>
+        <button class="char3d-swatch" data-target="outfit" data-color="#7B1818" style="background:#7B1818" aria-label="אדום יין"></button>
+        <button class="char3d-swatch" data-target="outfit" data-color="#0E5C3F" style="background:#0E5C3F" aria-label="ירוק יער"></button>
+        <button class="char3d-swatch" data-target="outfit" data-color="#3A1A5E" style="background:#3A1A5E" aria-label="סגול מלכותי"></button>
+        <button class="char3d-swatch" data-target="outfit" data-color="#1F1F1F" style="background:#1F1F1F" aria-label="שחור"></button>
+        <button class="char3d-swatch" data-target="outfit" data-color="#C0C0C8" style="background:#C0C0C8" aria-label="כסף"></button>
+        <label class="char3d-swatch custom" aria-label="צבע בגדים מותאם">
+          <input type="color" data-target="outfit" value="#1A2472">
+        </label>
+      </div>
+    </div>
+
+    <!-- Accent (gold trim / accessories) -->
+    <div class="char3d-section">
+      <div class="char3d-section-label">✨ אקסנט (קישוטים)</div>
+      <div class="char3d-color-row" id="char3d-accent-colors">
+        <button class="char3d-swatch active" data-target="accent" data-color="#F0C030" style="background:#F0C030" aria-label="זהב"></button>
+        <button class="char3d-swatch" data-target="accent" data-color="#C0C0C8" style="background:#C0C0C8" aria-label="כסף"></button>
+        <button class="char3d-swatch" data-target="accent" data-color="#E0E0E0" style="background:#E0E0E0" aria-label="לבן"></button>
+        <button class="char3d-swatch" data-target="accent" data-color="#00C2AE" style="background:#00C2AE" aria-label="טורקיז"></button>
+        <button class="char3d-swatch" data-target="accent" data-color="#FF6B00" style="background:#FF6B00" aria-label="כתום"></button>
+        <label class="char3d-swatch custom" aria-label="צבע אקסנט מותאם">
+          <input type="color" data-target="accent" value="#F0C030">
+        </label>
+      </div>
+    </div>
+
+    <!-- Movements / Animations -->
+    <div class="char3d-section">
+      <div class="char3d-section-label">🎬 תנועות</div>
+      <div class="char3d-chip-row" id="char3d-anim-chips">
+        <button class="char3d-chip active" data-anim="idle">סטטי</button>
+        <button class="char3d-chip" data-anim="float">ריחוף</button>
+        <button class="char3d-chip" data-anim="bounce">קפיצה</button>
+        <button class="char3d-chip" data-anim="sway">נדנוד</button>
+        <button class="char3d-chip" data-anim="spin">סיבוב</button>
+        <button class="char3d-chip" data-anim="wave">גל</button>
+      </div>
+    </div>
+
+    <!-- Animation speed -->
+    <div class="char3d-section">
+      <div class="char3d-section-label">⚡ מהירות תנועה</div>
+      <div class="char3d-slider-row">
+        <span style="font-size:11px;color:var(--t3)">איטי</span>
+        <input type="range" id="char3d-speed" min="0.2" max="2.5" step="0.1" value="1">
+        <span class="char3d-slider-value" id="char3d-speed-value">1.0×</span>
+      </div>
+    </div>
+
+    <!-- Reset -->
+    <div style="display:flex;gap:10px;margin-top:6px;">
+      <button id="char3d-reset" class="char3d-chip" style="flex:1;padding:12px;font-size:13px;">↺ איפוס</button>
+      <button id="char3d-close" class="char3d-chip active" style="flex:1;padding:12px;font-size:13px;">סגור</button>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+  import { Char3DViewer } from './components/Char3DViewer.js';
+
+  const stage = document.getElementById('char3d-stage');
+  const loadingEl = document.getElementById('char3d-loading');
+  const loadingTextEl = document.getElementById('char3d-loading-text');
+  const loadingFillEl = document.getElementById('char3d-loading-fill');
+
+  const viewer = new Char3DViewer(stage, {
+    width: 240,
+    height: 280,
+    modelPath: '/models/character.glb',
+    defaultState: {
+      body: '#FAD4A0',
+      outfit: '#1A2472',
+      accent: '#F0C030',
+      animation: 'idle',
+      speed: 1.0,
+    },
+    onProgress: (pct, mbLoaded, mbTotal) => {
+      if (pct !== null) {
+        loadingFillEl.style.width = pct.toFixed(0) + '%';
+        loadingTextEl.textContent = `טוען ${pct.toFixed(0)}%  ·  ${mbLoaded}/${mbTotal}MB`;
+      } else {
+        loadingTextEl.textContent = `טוען... ${mbLoaded}MB`;
+        const w = parseFloat(loadingFillEl.style.width) || 0;
+        loadingFillEl.style.width = ((w + 3) % 95) + '%';
+      }
+    },
+    onLoad: () => {
+      loadingTextEl.textContent = 'מעבד...';
+      loadingFillEl.style.width = '100%';
+      setTimeout(() => {
+        loadingEl.classList.add('hidden');
+        setTimeout(() => (loadingEl.style.display = 'none'), 300);
+      }, 200);
+    },
+    onError: (err) => {
+      console.error('Character load error', err);
+      loadingTextEl.textContent = 'שגיאה בטעינה';
+      loadingEl.classList.add('hidden');
+      setTimeout(() => (loadingEl.style.display = 'none'), 300);
+    },
+  });
+
+  // Customize panel wiring
+  const customizeBtn = document.getElementById('char3d-customize-btn');
+  const panel = document.getElementById('char3d-panel');
+  const backdrop = document.getElementById('char3d-panel-backdrop');
+  const closeBtn = document.getElementById('char3d-close');
+  const resetBtn = document.getElementById('char3d-reset');
+
+  function openPanel() {
+    panel.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function closePanel() {
+    panel.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+  customizeBtn.addEventListener('click', openPanel);
+  backdrop.addEventListener('click', closePanel);
+  closeBtn.addEventListener('click', closePanel);
+
+  // Color swatches
+  document.querySelectorAll('.char3d-swatch[data-color]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.target;
+      const color = btn.dataset.color;
+      viewer.setColor(target, color);
+      btn.parentElement.querySelectorAll('.char3d-swatch').forEach((s) => s.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Custom color inputs
+  document.querySelectorAll('.char3d-swatch.custom input[type="color"]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const target = input.dataset.target;
+      viewer.setColor(target, input.value);
+      const row = input.closest('.char3d-color-row');
+      row.querySelectorAll('.char3d-swatch').forEach((s) => s.classList.remove('active'));
+      input.parentElement.classList.add('active');
+    });
+  });
+
+  // Animation chips
+  document.querySelectorAll('.char3d-chip[data-anim]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.char3d-chip[data-anim]').forEach((c) => c.classList.remove('active'));
+      chip.classList.add('active');
+      viewer.setAnimation(chip.dataset.anim);
+    });
+  });
+
+  // Speed slider
+  const speedInput = document.getElementById('char3d-speed');
+  const speedValue = document.getElementById('char3d-speed-value');
+  speedInput.addEventListener('input', () => {
+    viewer.setSpeed(speedInput.value);
+    speedValue.textContent = viewer.state.speed.toFixed(1) + '×';
+  });
+
+  // Reset
+  resetBtn.addEventListener('click', () => {
+    viewer.reset();
+    speedInput.value = 1.0;
+    speedValue.textContent = '1.0×';
+    document.querySelectorAll('.char3d-color-row').forEach((row) => {
+      row.querySelectorAll('.char3d-swatch').forEach((s, i) => s.classList.toggle('active', i === 0));
+    });
+    document.querySelectorAll('.char3d-chip[data-anim]').forEach((c) =>
+      c.classList.toggle('active', c.dataset.anim === 'idle')
+    );
+  });
+  </script>
+</body>
+</html>
