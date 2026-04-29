@@ -74,7 +74,10 @@
       "Bash(git push *)",
       "Bash(git commit -m 'Update: Complete project state with Char3DViewer module integration *)",
       "Bash(gh repo *)",
-      "Bash(git commit -m 'feat: Add app.html with complete Char3DViewer integration *)"
+      "Bash(git commit -m 'feat: Add app.html with complete Char3DViewer integration *)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "Bash(kill 46394)",
+      "Bash(python /Users/galzituni/Desktop/ben-s-learning-agent/server.py)"
     ]
   }
 }

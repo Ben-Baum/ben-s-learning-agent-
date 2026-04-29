@@ -36,6 +36,15 @@ _chat_handler = None   # callable(user_text: str) -> str  (set by run_chat.py)
 _ben_agent_handler = None  # callable(user_text: str, user_id: str) -> dict
 _ben_agent_upload_handler = None
 
+
+def _call_chat_handler(handler, *args, agent_version="v2"):
+    try:
+        return handler(*args, agent_version=agent_version)
+    except TypeError as exc:
+        if "agent_version" not in str(exc):
+            raise
+        return handler(*args)
+
 def register_chat_handler(fn):
     """Register a function that processes user messages and returns a reply."""
     global _chat_handler
@@ -271,7 +280,8 @@ class APIHandler(BaseHTTPRequestHandler):
             self._json_response({"error": "pipeline not running"}, 503)
             return
         try:
-            result = _chat_handler(user_text, user_id)
+            agent_version = data.get("agent_version", data.get("agentVersion", "v2"))
+            result = _call_chat_handler(_chat_handler, user_text, user_id, agent_version=agent_version)
             if isinstance(result, dict):
                 self._json_response(result)
             else:
@@ -293,7 +303,8 @@ class APIHandler(BaseHTTPRequestHandler):
             self._json_response({"error": "ben agent not running"}, 503)
             return
         try:
-            result = _ben_agent_handler(user_text, user_id)
+            agent_version = data.get("agent_version", data.get("agentVersion", "v2"))
+            result = _call_chat_handler(_ben_agent_handler, user_text, user_id, agent_version=agent_version)
             self._json_response(result)
         except Exception as e:
             self._json_response({"error": str(e)}, 500)

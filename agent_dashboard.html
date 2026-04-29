@@ -56,6 +56,38 @@
             font-family: 'IBM Plex Mono', monospace;
         }
 
+        .agent-switcher {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1e2329;
+            border: 1px solid #303946;
+            border-left: 2px solid #e6a4ff;
+            border-radius: 4px;
+            padding: 4px 8px;
+        }
+
+        .agent-switcher-label {
+            color: #8b949e;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .agent-switcher select {
+            min-width: 112px;
+            background: #0d1117;
+            border: 1px solid #303946;
+            border-radius: 4px;
+            color: #e6edf3;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            outline: none;
+            padding: 3px 7px;
+        }
+
         .status-indicator {
             display: flex;
             align-items: center;
@@ -2088,6 +2120,13 @@
             ◆ GENIE AI / CONTROL CENTER
         </div>
         <div class="header-right">
+            <div class="agent-switcher" aria-label="בחירת סוכן גלובלית">
+                <span class="agent-switcher-label">Agent</span>
+                <select id="agentVersionSelect" title="בחירת סוכן לכל הצ'אטים">
+                    <option value="v1">Agent 1</option>
+                    <option value="v2">Ben Agent 2</option>
+                </select>
+            </div>
             <div class="status-indicator">
                 <div class="status-dot" id="connectionStatus"></div>
                 <span id="connectionLabel" style="font-size:12px;">Disconnected</span>
@@ -2324,16 +2363,11 @@
                 return queryBase.replace(/\/$/, '');
             }
 
-            // Ignored localStorage intentionally so users won't get stuck on old endpoints
+            if (window.location.protocol === 'file:') {
+                return 'http://localhost:8766';
+            }
 
-            const isLocal =
-                window.location.hostname === 'localhost' ||
-                window.location.hostname === '127.0.0.1' ||
-                window.location.protocol === 'file:';
-
-            return isLocal
-                ? 'http://localhost:8766'
-                : window.location.origin;
+            return window.location.origin;
         }
 
         const API_BASE = resolveApiBase();
@@ -2402,6 +2436,7 @@
         function init() {
             initializeAgents();
             setupEventListeners();
+            initAgentVersionSwitcher();
             loadPrompts();
             loadRouterConfig();
             showBanner();  // shown until WS connects
@@ -2432,6 +2467,26 @@
                 button.addEventListener('click', (e) => {
                     switchTab(e.target.dataset.tab);
                 });
+            });
+        }
+
+        function getSelectedAgentVersion() {
+            const stored = localStorage.getItem('ben_agent_active_version');
+            return stored === 'v1' ? 'v1' : 'v2';
+        }
+
+        function getSelectedAgentLabel() {
+            return getSelectedAgentVersion() === 'v1' ? 'Agent 1' : 'Ben Agent 2';
+        }
+
+        function initAgentVersionSwitcher() {
+            const select = document.getElementById('agentVersionSelect');
+            if (!select) return;
+            select.value = getSelectedAgentVersion();
+            select.addEventListener('change', () => {
+                const version = select.value === 'v1' ? 'v1' : 'v2';
+                localStorage.setItem('ben_agent_active_version', version);
+                showToast(`כל הצ'אטים עברו אל ${getSelectedAgentLabel()}`, '#e6a4ff');
             });
         }
 
@@ -3871,7 +3926,11 @@
             fetch(`${API_BASE}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, user_id: userId })
+                body: JSON.stringify({
+                    message: text,
+                    user_id: userId,
+                    agent_version: getSelectedAgentVersion()
+                })
             })
             .then(r => r.json())
             .then(data => {
@@ -3879,7 +3938,7 @@
                 if (data.error) {
                     appendChatMsg('❌ שגיאה: ' + data.error, 'bot');
                 } else {
-                    appendChatMsg(data.reply, 'bot', data.route || "Ben's Agent");
+                    appendChatMsg(data.reply, 'bot', data.route || data.agent_label || getSelectedAgentLabel());
                     if (data.profile) {
                         updateBenAgentProfileUI(data.profile);
                     }
@@ -4044,12 +4103,16 @@
             benAgentWaiting = true;
 
             appendBenAgentMsg(text, 'user');
-            const thinkingEl = appendBenAgentMsg('🧠 לומד ומעבד...', 'bot thinking');
+            const thinkingEl = appendBenAgentMsg(`${getSelectedAgentLabel()} מעבד...`, 'bot thinking');
 
             fetch(`${API_BASE}/api/ben-agent/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, user_id: userId })
+                body: JSON.stringify({
+                    message: text,
+                    user_id: userId,
+                    agent_version: getSelectedAgentVersion()
+                })
             })
             .then(r => r.json())
             .then(data => {
@@ -4057,7 +4120,7 @@
                 if (data.error) {
                     appendBenAgentMsg('❌ שגיאה: ' + data.error, 'bot');
                 } else {
-                    appendBenAgentMsg(data.reply, 'bot', '🧠 הסוכן של בן');
+                    appendBenAgentMsg(data.reply, 'bot', data.agent_label || getSelectedAgentLabel());
                     // Update profile sidebar
                     if (data.profile) {
                         updateBenAgentProfileUI(data.profile);

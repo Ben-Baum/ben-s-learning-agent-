@@ -117,14 +117,42 @@ def _public_error_message(exc: Exception | str) -> str:
     return text
 
 
-def _api_chat(user_text: str, user_id: str = None) -> dict:
-    """Legacy chat endpoint now delegates to Ben's Agent so all UI uses one brain."""
-    return _api_ben_agent_chat(user_text, user_id or "flow_default_user")
+def _api_chat(user_text: str, user_id: str = None, agent_version: str = "v2") -> dict:
+    """Handle the dashboard chat with a global switch between Agent 1 and Agent 2."""
+    if agent_version == "v1":
+        return _api_legacy_chat(user_text, user_id or "flow_default_user")
+    return _api_ben_agent_chat(user_text, user_id or "flow_default_user", agent_version=agent_version)
 
 
-def _api_ben_agent_chat(user_text: str, user_id: str) -> dict:
+def _api_legacy_chat(user_text: str, user_id: str) -> dict:
+    """Run the original pipeline for a user-scoped legacy chat session."""
+    global _sessions
+
+    if full_turn is None:
+        return {"error": f"שגיאה בטעינת הסוכן הראשון: {_pipeline_error}"}
+
+    state = _sessions.get(user_id, {})
+    try:
+        reply, new_state = full_turn(user_text, state)
+    except Exception as e:
+        return {"error": _public_error_message(e)}
+
+    _sessions[user_id] = new_state
+    return {
+        "reply": reply,
+        "user_id": user_id,
+        "agent_version": "v1",
+        "agent_label": "Agent 1",
+        "route": new_state.get("last_route", ""),
+    }
+
+
+def _api_ben_agent_chat(user_text: str, user_id: str, agent_version: str = "v2") -> dict:
     """Handle Ben's Agent chat — returns {reply, profile}."""
     global _ben_agent_sessions
+
+    if agent_version == "v1":
+        return _api_legacy_chat(user_text, user_id)
 
     if ben_agent_full_turn is None:
         return {"error": f"שגיאה בטעינת הסוכן של בן: {_pipeline_error}"}
@@ -167,6 +195,8 @@ def _api_ben_agent_chat(user_text: str, user_id: str) -> dict:
         "reply": reply,
         "profile": updated_profile,
         "user_id": user_id,
+        "agent_version": "v2",
+        "agent_label": "Ben Agent 2",
         "route": new_state.get("last_route", ""),
     }
 
